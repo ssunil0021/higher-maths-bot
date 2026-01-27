@@ -16,19 +16,19 @@ app = Flask(__name__)
 WEBHOOK_PATH = f"/{BOT_TOKEN}"
 WEBHOOK_URL = os.getenv("WEBHOOK_URL") + WEBHOOK_PATH
 
-# set webhook
+# Ensure polling is OFF
 bot.remove_webhook()
 bot.set_webhook(url=WEBHOOK_URL)
 
 @app.route(WEBHOOK_PATH, methods=["POST"])
 def webhook():
-    json_str = request.get_data().decode("UTF-8")
+    json_str = request.get_data().decode("utf-8")
     update = telebot.types.Update.de_json(json_str)
     bot.process_new_updates([update])
     return "OK", 200
 
 @app.route("/")
-def home():
+def health():
     return "Bot is running", 200
 
 if __name__ == "__main__":
