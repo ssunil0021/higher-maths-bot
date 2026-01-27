@@ -64,12 +64,22 @@ def register_handlers(bot):
 
         elif data.startswith("pdf|"):
             _, exam, year = data.split("|")
-            link = PDF_LINKS.get(exam, {}).get(year)
 
-            if not link:
-                bot.send_message(call.message.chat.id, "❌ PDF not available")
+            data_year = PDF_LINKS.get(exam, {}).get(year)
+
+            if not data_year:
+               bot.send_message(call.message.chat.id, "❌ PDF not available")
+               return
+
+            text = f"📘 <b>{EXAMS[exam]} – {year}</b>\n\n"
+
+            text += f"📄 <b>Question Paper</b>\n"
+            text += f"⬇️ <a href='{data_year['question']}'>Download</a>\n\n"
+
+            if "answer" in data_year:
+                text += f"📝 <b>Answer Key</b>\n"
+                text += f"⬇️ <a href='{data_year['answer']}'>Download</a>"
             else:
-                bot.send_message(
-                    call.message.chat.id,
-                    f"📘 <b>{EXAMS[exam]} – {year}</b>\n\n⬇️ <a href='{link}'>Download PDF</a>"
-                )
+                text += "📝 <b>Answer Key</b>\n❌ Not available"
+
+            bot.send_message(call.message.chat.id, text)
