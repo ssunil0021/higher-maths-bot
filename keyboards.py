@@ -26,8 +26,11 @@ def year_keyboard(exam):
     if not years:
         kb.add(InlineKeyboardButton("❌ No PDFs", callback_data="none"))
     else:
-        for year in sorted(years, reverse=True):
-            kb.add(InlineKeyboardButton(year, callback_data=f"pdf|{exam}|{year}"))
+        buttons = [
+            InlineKeyboardButton(year, callback_data=f"pdf|{exam}|{year}")
+            for year in sorted(years, reverse=True)
+        ]
+        kb.add(*buttons)   # 🔥 THIS is the key line
 
     kb.add(
         InlineKeyboardButton("⬅️ Back", callback_data="pyqs"),
