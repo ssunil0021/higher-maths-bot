@@ -1,20 +1,38 @@
 from keyboards import home_keyboard, exam_keyboard, year_keyboard
 from data import EXAMS, PDF_LINKS
 
-WELCOME_MSG = """📘 <b>Higher Maths PYQ Bot</b>
+WELCOME_MSG = """📘 <b>Higher Maths PYQs</b>
 
-Authentic previous year papers for serious aspirants.
+Welcome! 👋  
+This bot helps you prepare for higher mathematics exams in one place.
 
-👇 Start below
+Available now:
+• Previous year question papers (PYQs)  
+• Answer keys (where available)  
+• Clean and fast downloads  
+
+Coming soon:
+• Detailed solutions of PYQs  
+• Expert guidance for exams  
+• Best video suggestions to learn topics  
+• Book PDFs & references  
+• Short notes for revision  
+
+👇 Start by selecting your exam below
 """
+
 
 HELP_MSG = """ℹ️ <b>How to use</b>
 
-1. Click PYQs  
-2. Choose exam  
-3. Select year  
-4. Download PDF
+1️⃣ Click PYQs  
+2️⃣ Choose exam  
+3️⃣ Select category (if shown)  
+4️⃣ Select year  
+5️⃣ Download PDFs  
+
+📌 Tip: Practice PYQs year-wise for better understanding.
 """
+
 
 
 def safe_edit(bot, call, text, kb):
