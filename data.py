@@ -30,5 +30,20 @@ PDF_LINKS = {
             "question": "https://drive.google.com/uc?id=1UXIbXwMXfdX5aBfUd1uz1q_xdB-Q8U0H&export=download",
             "answer":   "https://drive.google.com/uc?id=1UXIbXwMXfdX5aBfUd1uz1q_xdB-Q8U0H&export=download"
         }
+    },
+
+    "jam": {
+        "2025": {
+            "question": "https://drive.google.com/uc?id=1INSpYBq7x5HPWLy7362mGZwOSI2ah0eu&export=download",
+            "answer":   "https://drive.google.com/uc?id=16E2Hi5Qpn-hEQLUSQV6GCQpdnSTbIAbs&export=download"
+        },
+        "2024": {
+            "question": "https://drive.google.com/uc?id=13uZAZxLj-IQ0lPe8q-SpjkPWDp07EC57&export=download",
+            "answer":   "https://drive.google.com/uc?id=1-oCs2ilpUX7k5SBK574WH61trMSmzoAV&export=download"
+        },
+        "2023": {
+            "question": "https://drive.google.com/uc?id=1NXRzCDJUDgmp1U_R2a5uFuQS5q-QTCyt&export=download",
+            "answer":   "https://drive.google.com/uc?id=1rd7hyJHah6ChjuctdOo-zqpLxDxp97vM&export=download"
+        }
     }
 }
