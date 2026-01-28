@@ -40,10 +40,10 @@ def year_keyboard(exam):
 
 def nbhm_category_keyboard():
     kb = InlineKeyboardMarkup()
-    kb.add(
-        InlineKeyboardButton("📘 Combined (2023–Present)", callback_data="nbhmcat|combined"),
-        InlineKeyboardButton("🎓 Master's (2005–2022)", callback_data="nbhmcat|masters"),
-        InlineKeyboardButton("🎓 Doctoral (2005–2022)", callback_data="nbhmcat|doctoral"),
-        InlineKeyboardButton("⬅️ Back", callback_data="pyqs")
-    )
+
+    kb.add(InlineKeyboardButton("📘 Combined (2023–Present)", callback_data="nbhmcat|combined"))
+    kb.add(InlineKeyboardButton("🎓 Master's (2005–2022)", callback_data="nbhmcat|masters"))
+    kb.add(InlineKeyboardButton("🎓 Doctoral (2005–2022)", callback_data="nbhmcat|doctoral"))
+
+    kb.add(InlineKeyboardButton("⬅️ Back", callback_data="pyqs"))
     return kb
