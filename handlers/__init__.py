@@ -85,44 +85,44 @@ def register_handlers(bot):
             bot.send_message(call.message.chat.id, text)
 
 
-@bot.callback_query_handler(func=lambda c: c.data.startswith("nbhmcat|"))
-def nbhm_category_selected(call):
-    category = call.data.split("|")[1]
+    @bot.callback_query_handler(func=lambda c: c.data.startswith("nbhmcat|"))
+    def nbhm_category_selected(call):
+        category = call.data.split("|")[1]
 
-    years = PDF_LINKS["nbhm"][category]["years"]
+        years = PDF_LINKS["nbhm"][category]["years"]
 
-    from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-    kb = InlineKeyboardMarkup(row_width=3)
+        from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+        kb = InlineKeyboardMarkup(row_width=3)
 
-    buttons = [
-        InlineKeyboardButton(
-            year,
-            callback_data=f"nbhmpdf|{category}|{year}"
+        buttons = [
+            InlineKeyboardButton(
+                year,
+                callback_data=f"nbhmpdf|{category}|{year}"
+            )
+            for year in sorted(years, reverse=True)
+        ]
+        kb.add(*buttons)
+        kb.add(InlineKeyboardButton("⬅️ Back", callback_data="exam|nbhm"))
+
+        bot.edit_message_text(
+            f"📅 <b>{PDF_LINKS['nbhm'][category]['label']}</b>",
+            call.message.chat.id,
+            call.message.message_id,
+            reply_markup=kb
         )
-        for year in sorted(years, reverse=True)
-    ]
-    kb.add(*buttons)
-    kb.add(InlineKeyboardButton("⬅️ Back", callback_data="exam|nbhm"))
 
-    bot.edit_message_text(
-        f"📅 <b>{PDF_LINKS['nbhm'][category]['label']}</b>",
-        call.message.chat.id,
-        call.message.message_id,
-        reply_markup=kb
-    )
+    @bot.callback_query_handler(func=lambda c: c.data.startswith("nbhmpdf|"))
+    def nbhm_pdf_selected(call):
+        _, category, year = call.data.split("|")
 
-@bot.callback_query_handler(func=lambda c: c.data.startswith("nbhmpdf|"))
-def nbhm_pdf_selected(call):
-    _, category, year = call.data.split("|")
+        data_year = PDF_LINKS["nbhm"][category]["years"][year]
 
-    data_year = PDF_LINKS["nbhm"][category]["years"][year]
+        text = f"📘 <b>NBHM – {year}</b>\n\n"
+        text += f"📄 <b>Question Paper</b>\n⬇️ <a href='{data_year['question']}'>Download</a>\n\n"
 
-    text = f"📘 <b>NBHM – {year}</b>\n\n"
-    text += f"📄 <b>Question Paper</b>\n⬇️ <a href='{data_year['question']}'>Download</a>\n\n"
+        if "answer" in data_year:
+            text += f"📝 <b>Answer Key</b>\n⬇️ <a href='{data_year['answer']}'>Download</a>"
+        else:
+            text += "📝 <b>Answer Key</b>\n❌ Not available"
 
-    if "answer" in data_year:
-        text += f"📝 <b>Answer Key</b>\n⬇️ <a href='{data_year['answer']}'>Download</a>"
-    else:
-        text += "📝 <b>Answer Key</b>\n❌ Not available"
-
-    bot.send_message(call.message.chat.id, text)
+        bot.send_message(call.message.chat.id, text)
