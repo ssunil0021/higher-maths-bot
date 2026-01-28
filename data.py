@@ -44,6 +44,18 @@ PDF_LINKS = {
         "2023": {
             "question": "https://drive.google.com/uc?id=1NXRzCDJUDgmp1U_R2a5uFuQS5q-QTCyt&export=download",
             "answer":   "https://drive.google.com/uc?id=1rd7hyJHah6ChjuctdOo-zqpLxDxp97vM&export=download"
+        },
+        "2022": {
+            "question": "https://drive.google.com/uc?id=1Te2dhYJPuZKOEibig2FccfYONud_rsrk&export=download",
+            "answer":   "https://drive.google.com/uc?id=1-DcyIC6bU6A09Agq2eh6MJnXfU-z_cJL&export=download"
+        },
+        "2021": {
+            "question": "https://drive.google.com/uc?id=1bP1ES5RQiPQqBRvElcwVt7QTHfAtCmlZ&export=download",
+            "answer":   "https://drive.google.com/uc?id=1NkCXE17b5DTC52SQVBKpZix1FXnOMm9m&export=download"
+        },
+        "2020": {
+            "question": "https://drive.google.com/uc?id=1bf5ED34uaDvjPg5ZqoNyFdjPrFx-HwX_&export=download",
+            "answer":   "https://drive.google.com/uc?id=1GtVGmD6Qu0Ke7GPvEVRBDzkTaUEq--Gr&export=download"
         }
     }
 }
