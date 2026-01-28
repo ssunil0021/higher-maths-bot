@@ -67,6 +67,30 @@ PDF_LINKS = {
                 "2011": {
                    "question": "https://drive.google.com/uc?id=14QZS4A-ewnDI3EoYKuoj8f4hNoWIt2ko&export=download",
                    "answer":   "https://drive.google.com/uc?id=1eY3pgfxWWiPwykDRbFmFEAF1sepFIhJ9&export=download"
+                },
+                "2010": {
+                   "question": "https://drive.google.com/uc?id=1JWFc0f-fFBlve2-CNjXl3bTENuO4-arM&export=download",
+                   "answer":   "https://drive.google.com/uc?id=1OCKblCc7XMcBLAUiOild6m9JCTPfmBXi&export=download"
+                },
+                "2009": {
+                   "question": "https://drive.google.com/uc?id=1AKR6fsh6mR7kwQf6wI-4tBy6f74MrfAs&export=download",
+                   "answer":   "https://drive.google.com/uc?id=1I_EC0VRPTaH6VjZ0k09c8XWt_nSA68t7&export=download"
+                },
+                "2008": {
+                   "question": "https://drive.google.com/uc?id=1W0Hv2oKb7NU8L3Kx_z1EELO-ddz5Mu0e&export=download",
+                   "answer":   "https://drive.google.com/uc?id=1jyQL_yXEZl7bbNLwuGG5aeWazVDsqrzW&export=download"
+                },
+                "2007": {
+                   "question": "https://drive.google.com/uc?id=1ctVxO5VVymc-dEg3YebGxSJTeLszmCTA&export=download",
+                   "answer":   "https://drive.google.com/uc?id=1v9pBMk6kdUOEHPC7omXh1oHqS6ThJjfm&export=download"
+                },
+                "2006": {
+                   "question": "https://drive.google.com/uc?id=1FugwKFEqrn4s-6dkhaOJXkAWt5vsFQQP&export=download",
+                   "answer":   "https://drive.google.com/uc?id=1MLG2BYRwsI87DW78jJb2HUaNVI6qiPNm&export=download"
+                },
+                "2005": {
+                   "question": "https://drive.google.com/uc?id=14fUWoVNEswgGTgABYXa1TXJbspjFvdaz&export=download",
+                   "answer":   "https://drive.google.com/uc?id=1fCFxG5w6qcVQwcL0viOSTC8O1Og_uRan&export=download"
                 }
             }
         },
