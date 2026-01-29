@@ -1,6 +1,6 @@
 import os
 
-ADMIN_ID = 5615871641
+ADMIN_IDS = [5615871641]
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 if not BOT_TOKEN:

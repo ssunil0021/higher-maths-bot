@@ -1,6 +1,9 @@
 from keyboards import home_keyboard, exam_keyboard, year_keyboard
 from data import EXAMS, PDF_LINKS
 from user_stats import add_user, total_users
+from config import ADMIN_IDS
+from user_stats import total_users
+
 
 
 WELCOME_MSG = """📘 <b>Higher Maths PYQs</b>
@@ -58,7 +61,16 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=["stats"])
     def stats(msg):
-        bot.send_message(msg.chat.id, f"👥 Total users: {total_users()}")
+        if msg.from_user.id not in ADMIN_IDS:
+           return  # silently ignore
+
+        bot.send_message(
+           msg.chat.id,
+           f"📊 <b>Bot Stats</b>\n\n"
+           f"👥 Total users: {total_users()}",
+           parse_mode="HTML"
+        )
+
 
 
     @bot.message_handler(commands=["help"])
