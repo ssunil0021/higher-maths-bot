@@ -1,5 +1,7 @@
 from keyboards import home_keyboard, exam_keyboard, year_keyboard
 from data import EXAMS, PDF_LINKS
+from user_stats import add_user, total_users
+
 
 WELCOME_MSG = """📘 <b>Higher Maths PYQs</b>
 
@@ -51,7 +53,13 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=["start"])
     def start(msg):
+        add_user(msg.from_user.id)
         bot.send_message(msg.chat.id, WELCOME_MSG, reply_markup=home_keyboard())
+
+    @bot.message_handler(commands=["stats"])
+    def stats(msg):
+        bot.send_message(msg.chat.id, f"👥 Total users: {total_users()}")
+
 
     @bot.message_handler(commands=["help"])
     def help_cmd(msg):
