@@ -1,10 +1,10 @@
 from keyboards import home_keyboard, exam_keyboard, year_keyboard
 from data import EXAMS, PDF_LINKS
-from user_stats import add_user, total_users
+#from user_stats import add_user, total_users
 from config import ADMIN_IDS
-from user_stats import total_users
+#from user_stats import total_users
 from safe_stats import add_user
-from admin_stats import get_total_users
+from admin_stats import get_stats
 
 
 ADMIN_IDS = 5615871641
@@ -66,13 +66,18 @@ def register_handlers(bot):
     @bot.message_handler(commands=["stats"])
     def stats(msg):
         if msg.from_user.id != ADMIN_IDS:
-           return
+             return
 
-        total = get_total_users()
+        s = get_stats()
+
         bot.send_message(
-              msg.chat.id,
-              f"📊 Bot Stats\n\n👥 Total Users: {total}"
+        msg.chat.id,
+        f"📊 Bot Stats\n\n"
+        f"👥 Total users: {s.get('total', 0)}\n"
+        f"🆕 New today: {s.get('new_today', 0)}\n"
+        f"📅 Active today: {s.get('active_today', 0)}"
         )
+
 
 
 

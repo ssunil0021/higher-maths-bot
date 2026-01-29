@@ -17,3 +17,5 @@ def add_user(user):
         requests.post(SHEET_URL, json=payload, timeout=2)
     except:
         pass
+
+
