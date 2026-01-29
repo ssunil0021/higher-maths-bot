@@ -69,16 +69,36 @@ def register_handlers(bot):
             safe_edit(bot, call, HELP_MSG, home_keyboard())
 
         elif data == "pyqs":
-            safe_edit(bot, call, "📂 <b>Select Exam</b>", exam_keyboard())
+            safe_edit(bot, call, """📂 <b>Select Exam</b>
+
+All PYQs here are carefully organised year-wise for easy practice.
+Choose the exam you are preparing for.
+
+"""
+, exam_keyboard())
 
         elif data.startswith("exam|"):
              exam = data.split("|")[1]
 
              if exam == "nbhm":
                  from keyboards import nbhm_category_keyboard
-                 safe_edit(bot,call,"📘 <b>NBHM – Select Category</b>",nbhm_category_keyboard())
+                 safe_edit(bot,call,"""📘 <b>NBHM</b>
+
+From 2023 onwards, the exam is combined.
+Before that, Master's and Doctoral were separate.
+
+Select the category below:
+"""
+,nbhm_category_keyboard())
              else:
-                 safe_edit(bot,call,f"📘 <b>{EXAMS[exam]}</b> – Select Year",year_keyboard(exam))
+                 safe_edit(bot,call,f"""📘 <b>{EXAMS[exam]}</b>
+
+Select a year to download:
+• Question paper  
+• Answer key (if available)
+
+"""
+,year_keyboard(exam))
 
         elif data.startswith("pdf|"):
             _, exam, year = data.split("|")
@@ -99,6 +119,7 @@ def register_handlers(bot):
                 text += f"⬇️ <a href='{data_year['answer']}'>Download</a>"
             else:
                 text += "📝 <b>Answer Key</b>\n❌ Not available"
+            text += "\n\n📌 More resources will be added soon. Stay connected!"
 
             bot.send_message(call.message.chat.id, text)
 
@@ -121,7 +142,13 @@ def register_handlers(bot):
             kb.add(*buttons)
             kb.add(InlineKeyboardButton("⬅️ Back", callback_data="exam|nbhm"))
 
-            safe_edit(bot,call,f"📅 <b>{PDF_LINKS['nbhm'][category]['label']}</b>", kb)
+            safe_edit(bot,call,f"""📅 <b>{PDF_LINKS['nbhm'][category]['label']}</b>
+
+Select a year to download:
+• Question paper  
+• Answer key
+"""
+, kb)
 
         elif data.startswith("nbhmpdf|"):
              _, category, year = data.split("|")
@@ -135,7 +162,9 @@ def register_handlers(bot):
                  text += f"📝 <b>Answer Key</b>\n⬇️ <a href='{data_year['answer']}'>Download</a>"
              else:
                  text += "📝 <b>Answer Key</b>\n❌ Not available"
- 
+             text += "\n\n📌 More resources will be added soon. Stay connected!"
+
+
              bot.send_message(call.message.chat.id, text)
 
 
