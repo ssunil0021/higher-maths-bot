@@ -119,8 +119,7 @@ Select a year to download:
                 text += f"⬇️ <a href='{data_year['answer']}'>Download</a>"
             else:
                 text += "📝 <b>Answer Key</b>\n❌ Not available"
-            text += """\n\n📌 More resources will be added soon.Update will be posted here:
-             https://t.me/HigherMathematicsBot1 Stay connected!"""
+            text += """\n\n📌 More resources will be added soon.Update will be posted here:https://t.me/HigherMathematicsBot1 Stay connected!"""
 
             bot.send_message(call.message.chat.id, text)
 
@@ -163,9 +162,7 @@ Select a year to download:
                  text += f"📝 <b>Answer Key</b>\n⬇️ <a href='{data_year['answer']}'>Download</a>"
              else:
                  text += "📝 <b>Answer Key</b>\n❌ Not available"
-             text += """\n\n📌 More resources will be added soon.
-             Update will be posted here:
-             https://t.me/HigherMathematicsBot1
+             text += """\n\n📌 More resources will be added soon.Update will be posted here:https://t.me/HigherMathematicsBot1
              
              Stay connected!"""
 
