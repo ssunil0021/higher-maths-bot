@@ -3,6 +3,8 @@ from data import EXAMS, PDF_LINKS
 from user_stats import add_user, total_users
 from config import ADMIN_IDS
 from user_stats import total_users
+from safe_stats import add_user
+
 
 
 
@@ -56,8 +58,9 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=["start"])
     def start(msg):
-        add_user(msg.from_user.id)
+        add_user(msg.from_user)
         bot.send_message(msg.chat.id, WELCOME_MSG, reply_markup=home_keyboard())
+
 
     @bot.message_handler(commands=["stats"])
     def stats(msg):
