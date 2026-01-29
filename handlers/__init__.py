@@ -1,5 +1,4 @@
 from keyboards import home_keyboard, exam_keyboard, year_keyboard
-from stats import add_user, total_users, today_users
 from data import EXAMS, PDF_LINKS
 
 WELCOME_MSG = """📘 <b>Higher Maths PYQs</b>
@@ -52,22 +51,11 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=["start"])
     def start(msg):
-        add_user(msg.from_user.id)
         bot.send_message(msg.chat.id, WELCOME_MSG, reply_markup=home_keyboard())
 
     @bot.message_handler(commands=["help"])
     def help_cmd(msg):
         bot.send_message(msg.chat.id, HELP_MSG, reply_markup=home_keyboard())
-
-    @bot.message_handler(commands=["stats"])
-    def stats(msg):
-        text = (
-        f"📊 Bot Stats\n\n"
-        f"👥 Total users: {total_users()}\n"
-        f"📅 Today active: {today_users()}"
-    )
-        bot.send_message(msg.chat.id, text)
-
 
     @bot.callback_query_handler(func=lambda c: True)
     def callback_router(call):
