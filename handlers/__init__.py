@@ -4,6 +4,7 @@ from user_stats import add_user, total_users
 from config import ADMIN_IDS
 from user_stats import total_users
 from safe_stats import add_user
+from admin_stats import get_total_users
 
 
 
@@ -64,14 +65,13 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=["stats"])
     def stats(msg):
-        if msg.from_user.id not in ADMIN_IDS:
-           return  # silently ignore
+        if msg.from_user.id != ADMIN_IDS:
+           return
 
+        total = get_total_users()
         bot.send_message(
-           msg.chat.id,
-           f"📊 <b>Bot Stats</b>\n\n"
-           f"👥 Total users: {total_users()}",
-           parse_mode="HTML"
+              msg.chat.id,
+              f"📊 Bot Stats\n\n👥 Total Users: {total}"
         )
 
 
