@@ -1,12 +1,13 @@
 import requests
 import os
 
-SHEET_URL = os.getenv("SHEET_URL")
-
 def get_total_users():
+    url = os.getenv("SHEET_URL")
+    if not url:
+        return "SHEET_URL missing"
+
     try:
-        r = requests.get(SHEET_URL, timeout=5)
-        data = r.json()
-        return data.get("total", 0)
-    except:
-        return 0
+        r = requests.get(url, timeout=5)
+        return r.json().get("total", 0)
+    except Exception as e:
+        return str(e)

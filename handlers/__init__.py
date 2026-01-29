@@ -7,7 +7,7 @@ from safe_stats import add_user
 from admin_stats import get_total_users
 
 
-
+ADMIN_IDS = 5615871641
 
 WELCOME_MSG = """📘 <b>Higher Maths PYQs</b>
 
