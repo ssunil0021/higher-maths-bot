@@ -108,6 +108,9 @@ Choose the exam you are preparing for.
 
 """
 , exam_keyboard())
+            
+        elif data == "exam|csir_net":
+             safe_edit(bot,call,"📘 <b>CSIR-NET</b>\n\nSelect year:",csir_year_keyboard())
 
         elif data.startswith("exam|"):
              exam = data.split("|")[1]
@@ -201,8 +204,7 @@ Select a year to download:
 
              bot.send_message(call.message.chat.id, text)
 
-        elif data == "exam|csir_net":
-             safe_edit(bot,call,"📘 <b>CSIR-NET</b>\n\nSelect year:",csir_year_keyboard())
+        
 
         elif data.startswith("csiryear|"):
              year = data.split("|")[1]
