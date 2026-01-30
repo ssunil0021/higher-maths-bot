@@ -110,7 +110,9 @@ Choose the exam you are preparing for.
 , exam_keyboard())
             
         elif data == "exam|csir_net":
-             safe_edit(bot,call,"📘 <b>CSIR-NET</b>\n\nSelect year:",csir_year_keyboard())
+             safe_edit(bot,call,"""📘 <b>CSIR-NET</b>\n\nSelect a year to download:
+• Question paper  
+• Answer key (if available):""",csir_year_keyboard())
 
         elif data.startswith("exam|"):
              exam = data.split("|")[1]
