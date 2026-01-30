@@ -106,6 +106,30 @@ PDF_LINKS = {
         }
     },
 
+    "csir_net": {
+        "2025": {
+            "June": {
+                "question": "JUNE_2025_Q_LINK",
+                "answer": "JUNE_2025_A_LINK"
+            },
+            "December": {
+                "question": "DEC_2025_Q_LINK",
+                "answer": "DEC_2025_A_LINK"
+            }
+        },
+        "2024": {
+            "June": {
+                "question": "JUNE_2024_Q_LINK",
+                "answer": "JUNE_2024_A_LINK"
+            },
+            "December": {
+                "question": "DEC_2024_Q_LINK",
+                "answer": "DEC_2024_A_LINK"
+            }
+        }
+    },
+
+
     "gate": {
          "2025": {
             "question": "https://drive.google.com/uc?id=1b-PoIP6Pcrlhrwwgl6JsvTqM0oqLaBnw&export=download",

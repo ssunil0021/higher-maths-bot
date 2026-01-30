@@ -47,3 +47,29 @@ def nbhm_category_keyboard():
 
     kb.add(InlineKeyboardButton("⬅️ Back", callback_data="pyqs"))
     return kb
+
+def csir_year_keyboard():
+    from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+    kb = InlineKeyboardMarkup(row_width=3)
+
+    for year in sorted(PDF_LINKS["csir_net"].keys(), reverse=True):
+        kb.add(InlineKeyboardButton(year, callback_data=f"csiryear|{year}"))
+
+    kb.add(InlineKeyboardButton("⬅️ Back", callback_data="pyqs"))
+    return kb
+
+
+def csir_session_keyboard(year):
+    from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+    kb = InlineKeyboardMarkup(row_width=2)
+
+    for session in PDF_LINKS["csir_net"][year]:
+        kb.add(
+            InlineKeyboardButton(
+                f"{session} {year}",
+                callback_data=f"csirsession|{year}|{session}"
+            )
+        )
+
+    kb.add(InlineKeyboardButton("⬅️ Back", callback_data="exam|csir_net"))
+    return kb

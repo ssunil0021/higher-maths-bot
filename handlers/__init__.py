@@ -5,6 +5,8 @@ from config import ADMIN_IDS
 #from user_stats import total_users
 from safe_stats import add_user
 from admin_stats import get_stats
+from keyboards import csir_year_keyboard, csir_session_keyboard
+
 
 
 ADMIN_IDS = 5615871641
@@ -56,6 +58,8 @@ def safe_edit(bot, call, text, kb):
 
 
 def register_handlers(bot):
+
+    
 
     @bot.message_handler(commands=["start"])
     def start(msg):
@@ -196,5 +200,30 @@ Select a year to download:
 
 
              bot.send_message(call.message.chat.id, text)
+
+        elif data == "exam|csir_net":
+             safe_edit(bot,call,"📘 <b>CSIR-NET</b>\n\nSelect year:",csir_year_keyboard())
+
+        elif data.startswith("csiryear|"):
+             year = data.split("|")[1]
+             safe_edit(bot,call,f"📅 <b>{year}</b>\n\nSelect session:",csir_session_keyboard(year))
+
+        elif data.startswith("csirsession|"):
+             _, year, session = data.split("|")
+             data_pdf = PDF_LINKS["csir_net"][year][session]
+
+             text = f"""📘 <b>CSIR-NET {session} {year}</b>
+
+📄 Question Paper
+⬇️ <a href="{data_pdf['question']}">Download</a>
+
+📝 Answer Key
+⬇️ <a href="{data_pdf['answer']}">Download</a>
+"""
+
+             bot.send_message(call.message.chat.id, text)
+
+
+
 
 
