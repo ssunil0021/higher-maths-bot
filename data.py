@@ -108,23 +108,10 @@ PDF_LINKS = {
 
     "csir_net": {
         "2025": {
-            "June": {
-                "question": "JUNE_2025_Q_LINK",
-                "answer": "JUNE_2025_A_LINK"
-            },
+            
             "December": {
-                "question": "DEC_2025_Q_LINK",
-                "answer": "DEC_2025_A_LINK"
-            }
-        },
-        "2024": {
-            "June": {
-                "question": "JUNE_2024_Q_LINK",
-                "answer": "JUNE_2024_A_LINK"
-            },
-            "December": {
-                "question": "DEC_2024_Q_LINK",
-                "answer": "DEC_2024_A_LINK"
+                "question": "https://drive.google.com/uc?id=1wnLKkbGxw2D1s9HYlAVH4Lz1ObYFSSLm&export=download",
+                "answer": "https://drive.google.com/uc?id=1v_-Sr12miGEXbQg0p9GDuopkitYazVW_&export=download"
             }
         }
     },
