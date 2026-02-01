@@ -116,7 +116,7 @@ def register_handlers(bot):
             f"👤 {book['author']}\n"
             f"⬇️ <a href='{book['link']}'>Download PDF</a>"
         )
-    return
+         
 
 
     @bot.message_handler(commands=["start"])
