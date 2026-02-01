@@ -14,25 +14,6 @@ try:
     from rapidfuzz import fuzz
 except:
     fuzz = None
-import time
-from math import sqrt
-
-def cosine(a, b):
-    dot = sum(x*y for x,y in zip(a,b))
-    na = sqrt(sum(x*x for x in a))
-    nb = sqrt(sum(x*x for x in b))
-    return dot / (na * nb)
-
-def ai_search(query):
-    q_emb = get_embedding(query)
-    scored = []
-
-    for book in BOOKS:
-        score = cosine(q_emb, book["embedding"])
-        scored.append((score, book))
-
-    scored.sort(reverse=True, key=lambda x: x[0])
-    return [b for _, b in scored[:5]]
 
 
 
@@ -96,30 +77,36 @@ def register_handlers(bot):
     def book_search_handler(msg):
         SEARCH_MODE.discard(msg.from_user.id)
 
-        loading = bot.send_message(msg.chat.id, "🤖 AI searching…")
+        loading = bot.send_message(msg.chat.id,"⏳ Searching books…\nPlease wait a moment")
 
-        try:
-            results = ai_search(msg.text)
-        except Exception as e:
-            bot.edit_message_text("⚠️ AI error, try again", msg.chat.id, loading.message_id)
-            return
+        query = msg.text.lower().strip()
+        results = []
 
+        from difflib import SequenceMatcher
+
+        def sim(a, b):
+            return SequenceMatcher(None, a, b).ratio()
+
+        for book in BOOKS:
+            text = f"{book['name']} {book['author']} {' '.join(book['keywords'])}".lower()
+            if sim(query, text) > 0.45 or query in text:
+               results.append(book)
+        
         bot.delete_message(msg.chat.id, loading.message_id)
 
         if not results:
-            bot.send_message(msg.chat.id, "❌ No books found", reply_markup=books_nav_keyboard())
+            bot.send_message(msg.chat.id, "❌ No matching books found.\nTry different spelling.", reply_markup=books_nav_keyboard())
             return
 
-        for book in results:
+        for book in results[:5]:
             bot.send_message(
             msg.chat.id,
             f"📘 <b>{book['name']}</b>\n"
             f"👤 {book['author']}\n"
-            f"⬇️ <a href='{book['link']}'>Download</a>")
-
-            bot.send_message(msg.chat.id, "✨ What next?", reply_markup=books_nav_keyboard())
-
-        
+            f"⬇️ <a href='{book['link']}'>Download PDF</a>"
+        )
+        bot.send_message(msg.chat.id,"✨ <b>What next?</b>",reply_markup=books_nav_keyboard())
+        return
 
          
 
