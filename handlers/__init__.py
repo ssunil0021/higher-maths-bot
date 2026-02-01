@@ -10,6 +10,7 @@ from data import BOOKS
 from keyboards import books_menu_keyboard
 from difflib import SequenceMatcher
 
+SEARCH_MODE = {}
 
 
 ADMIN_IDS = 5615871641
@@ -109,11 +110,10 @@ def register_handlers(bot):
             safe_edit(bot,call,"📚 <b>Books & PDFs</b>\n\nChoose option:",books_menu_keyboard())
 
 
-
         elif data == "booksearch":
+            SEARCH_MODE[call.from_user.id] = True
             bot.send_message(call.message.chat.id,"🔍 Type book name / author / keyword:")
 
-            bot.register_next_step_handler(call.message, handle_book_search)
 
 
         elif data == "pyqs":
@@ -245,36 +245,39 @@ Select a year to download:
 
 
 
+    @bot.message_handler(func=lambda msg: SEARCH_MODE.get(msg.from_user.id, False))
+    def book_search_handler(msg):
+        SEARCH_MODE[msg.from_user.id] = False  # turn off search mode
 
-def handle_book_search(msg):
-    query = msg.text.lower().strip()
-    results = []
+        query = msg.text.lower().strip()
+        results = []
 
-    for book in BOOKS:
-        text = (
+        for book in BOOKS:
+            text = (
             book["name"] + " " +
             book["author"] + " " +
             " ".join(book["keywords"])
         ).lower()
 
-        score = similar(query, text)
+            score = similar(query, text)
 
-        if score > 0.5 or query in text:
-            results.append((score, book))
+            if score > 0.5 or query in text:
+               results.append((score, book))
 
-    if not results:
-        bot.send_message(
+        if not results:
+            bot.send_message(
             msg.chat.id,
             "❌ No matching books found.\nTry different spelling."
         )
         return
 
-    results.sort(reverse=True, key=lambda x: x[0])
+        results.sort(reverse=True, key=lambda x: x[0])
 
-    for _, book in results[:5]:
-        bot.send_message(
+        for _, book in results[:5]:
+           bot.send_message(
             msg.chat.id,
             f"📘 <b>{book['name']}</b>\n"
             f"👤 {book['author']}\n\n"
             f"⬇️ <a href='{book['link']}'>Download PDF</a>"
         )
+
