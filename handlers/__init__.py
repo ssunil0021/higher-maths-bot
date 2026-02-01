@@ -95,8 +95,7 @@ def register_handlers(bot):
         bot.delete_message(msg.chat.id, loading.message_id)
 
         if not results:
-            bot.send_message(msg.chat.id, "❌ No matching books found.\nTry different spelling.")
-            reply_markup=books_nav_keyboard()
+            bot.send_message(msg.chat.id, "❌ No matching books found.\nTry different spelling.", reply_markup=books_nav_keyboard())
             return
 
         for book in results[:5]:
