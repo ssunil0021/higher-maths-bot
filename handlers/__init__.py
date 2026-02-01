@@ -77,6 +77,8 @@ def register_handlers(bot):
     def book_search_handler(msg):
         SEARCH_MODE.discard(msg.from_user.id)
 
+        loading = bot.send_message(msg.chat.id,"⏳ Searching books…\nPlease wait a moment")
+
         query = msg.text.lower().strip()
         results = []
 
@@ -89,6 +91,8 @@ def register_handlers(bot):
             text = f"{book['name']} {book['author']} {' '.join(book['keywords'])}".lower()
             if sim(query, text) > 0.45 or query in text:
                results.append(book)
+        
+        bot.delete_message(msg.chat.id, loading.message_id)
 
         if not results:
             bot.send_message(msg.chat.id, "❌ No matching books found.\nTry different spelling.")
