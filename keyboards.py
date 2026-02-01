@@ -83,3 +83,13 @@ def books_menu_keyboard():
         InlineKeyboardButton("🏠 Home", callback_data="home")
     )
     return kb
+
+def books_nav_keyboard():
+    from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+    kb = InlineKeyboardMarkup(row_width=2)
+    kb.add(
+        InlineKeyboardButton("🔍 Search again", callback_data="booksearch"),
+        InlineKeyboardButton("📚 Books", callback_data="books"),
+        InlineKeyboardButton("🏠 Home", callback_data="home")
+    )
+    return kb

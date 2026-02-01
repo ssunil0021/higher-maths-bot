@@ -8,6 +8,7 @@ from admin_stats import get_stats
 from keyboards import csir_year_keyboard, csir_session_keyboard
 from data import BOOKS
 from keyboards import books_menu_keyboard
+from keyboards import books_nav_keyboard
 from difflib import SequenceMatcher
 try:
     from rapidfuzz import fuzz
@@ -100,8 +101,9 @@ def register_handlers(bot):
             f"👤 {book['author']}\n"
             f"⬇️ <a href='{book['link']}'>Download PDF</a>"
         )
-
+        bot.send_message(msg.chat.id,"✨ <b>What next?</b>",reply_markup=books_nav_keyboard())
         return
+        
 
          
 
@@ -146,12 +148,19 @@ def register_handlers(bot):
             safe_edit(bot, call, HELP_MSG, home_keyboard())
 
         elif data == "books":
-            safe_edit(bot,call,"📚 <b>Books & PDFs</b>\n\nChoose option:",books_menu_keyboard())
+            safe_edit(bot,call,"📚 <b>Books & PDFs</b>\n\n"
+    "• Search any book\n"
+    "• Find PDFs instantly\n"
+    "• Typo-tolerant smart search\n\n"
+    "Choose an option below 👇",books_menu_keyboard())
 
 
         elif data == "booksearch":
             SEARCH_MODE.add(call.from_user.id)
-            bot.send_message(call.message.chat.id,"🔍 Type book name / author / keyword:")
+            bot.send_message(call.message.chat.id,"🔍 <b>Search books & PDFs</b>\n\n"
+"Type book name, author, or topic.\n"
+"<i>(typos also work)</i>"
+)
 
 
 
