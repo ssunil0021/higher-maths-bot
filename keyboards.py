@@ -6,6 +6,7 @@ def home_keyboard():
     kb = InlineKeyboardMarkup()
     kb.add(
         InlineKeyboardButton("📂 PYQs", callback_data="pyqs"),
+        InlineKeyboardButton("📚 Books & PDFs", callback_data="books"),
         InlineKeyboardButton("ℹ️ Help", callback_data="help")
     )
     return kb
@@ -72,4 +73,13 @@ def csir_session_keyboard(year):
         )
 
     kb.add(InlineKeyboardButton("⬅️ Back", callback_data="exam|csir_net"))
+    return kb
+
+def books_menu_keyboard():
+    kb = InlineKeyboardMarkup(row_width=1)
+    kb.add(
+        InlineKeyboardButton("🔍 Search book", callback_data="booksearch"),
+        InlineKeyboardButton("📂 Browse topics", callback_data="bookbrowse"),
+        InlineKeyboardButton("🏠 Home", callback_data="home")
+    )
     return kb

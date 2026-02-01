@@ -280,3 +280,25 @@ PDF_LINKS = {
         }
     }
 }
+
+
+BOOKS = [
+    {
+        "name": "Principles of Mathematical Analysis",
+        "author": "Walter Rudin",
+        "keywords": ["rudin", "analysis", "real analysis"],
+        "link": "PDF_LINK_1"
+    },
+    {
+        "name": "Linear Algebra",
+        "author": "Hoffman Kunze",
+        "keywords": ["linear", "algebra", "hoffman"],
+        "link": "PDF_LINK_2"
+    },
+    {
+        "name": "Functional Analysis",
+        "author": "Rudin",
+        "keywords": ["functional", "analysis", "rudin"],
+        "link": "PDF_LINK_3"
+    }
+]

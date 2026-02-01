@@ -6,6 +6,9 @@ from config import ADMIN_IDS
 from safe_stats import add_user
 from admin_stats import get_stats
 from keyboards import csir_year_keyboard, csir_session_keyboard
+from data import BOOKS
+from keyboards import books_menu_keyboard
+from difflib import SequenceMatcher
 
 
 
@@ -43,6 +46,8 @@ HELP_MSG = """ℹ️ <b>How to use</b>
 📌 Tip: Practice PYQs year-wise for better understanding.
 """
 
+def similar(a, b):
+    return SequenceMatcher(None, a, b).ratio()
 
 
 def safe_edit(bot, call, text, kb):
@@ -99,6 +104,17 @@ def register_handlers(bot):
 
         elif data == "help":
             safe_edit(bot, call, HELP_MSG, home_keyboard())
+
+        elif data == "books":
+            safe_edit(bot,call,"📚 <b>Books & PDFs</b>\n\nChoose option:",books_menu_keyboard())
+
+
+
+        elif data == "booksearch":
+            bot.send_message(call.message.chat.id,"🔍 Type book name / author / keyword:")
+
+            bot.register_next_step_handler(call.message, handle_book_search)
+
 
         elif data == "pyqs":
             safe_edit(bot, call, """📂 <b>Select Exam</b>
@@ -230,4 +246,35 @@ Select a year to download:
 
 
 
+def handle_book_search(msg):
+    query = msg.text.lower().strip()
+    results = []
 
+    for book in BOOKS:
+        text = (
+            book["name"] + " " +
+            book["author"] + " " +
+            " ".join(book["keywords"])
+        ).lower()
+
+        score = similar(query, text)
+
+        if score > 0.5 or query in text:
+            results.append((score, book))
+
+    if not results:
+        bot.send_message(
+            msg.chat.id,
+            "❌ No matching books found.\nTry different spelling."
+        )
+        return
+
+    results.sort(reverse=True, key=lambda x: x[0])
+
+    for _, book in results[:5]:
+        bot.send_message(
+            msg.chat.id,
+            f"📘 <b>{book['name']}</b>\n"
+            f"👤 {book['author']}\n\n"
+            f"⬇️ <a href='{book['link']}'>Download PDF</a>"
+        )
