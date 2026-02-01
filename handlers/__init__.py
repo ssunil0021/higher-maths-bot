@@ -96,6 +96,7 @@ def register_handlers(bot):
 
         if not results:
             bot.send_message(msg.chat.id, "❌ No matching books found.\nTry different spelling.")
+            reply_markup=books_nav_keyboard()
             return
 
         for book in results[:5]:
