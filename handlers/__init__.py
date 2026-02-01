@@ -84,6 +84,7 @@ def register_handlers(bot):
 
     @bot.message_handler(func=lambda msg: msg.from_user.id in SEARCH_MODE)
     def book_search_handler(msg):
+        print("🔥 SEARCH HANDLER HIT:", msg.text)
         SEARCH_MODE.discard(msg.from_user.id)
 
         raw_query = msg.text.lower().strip()
