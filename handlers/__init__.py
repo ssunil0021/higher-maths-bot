@@ -9,6 +9,8 @@ from keyboards import csir_year_keyboard, csir_session_keyboard
 from data import BOOKS
 from keyboards import books_menu_keyboard
 from difflib import SequenceMatcher
+from rapidfuzz import fuzz
+
 
 SEARCH_MODE = set()
 
@@ -50,6 +52,13 @@ HELP_MSG = """ℹ️ <b>How to use</b>
 def similar(a, b):
     return SequenceMatcher(None, a, b).ratio()
 
+def ai_score(query, text):
+    return max(
+        fuzz.ratio(query, text),
+        fuzz.partial_ratio(query, text),
+        fuzz.token_sort_ratio(query, text),
+        fuzz.token_set_ratio(query, text),
+    ) / 100
 
 def safe_edit(bot, call, text, kb):
     try:
@@ -67,40 +76,40 @@ def register_handlers(bot):
 
     @bot.message_handler(func=lambda msg: msg.from_user.id in SEARCH_MODE)
     def book_search_handler(msg):
-        SEARCH_MODE.discard(msg.from_user.id)  # turn off search mode
+        SEARCH_MODE.discard(msg.from_user.id)
 
-        query = msg.text.lower().strip()
+        raw_query = msg.text.lower().strip()
+        query = expand_query(raw_query)
+
         results = []
 
         for book in BOOKS:
-            text = (
-            book["name"] + " " +
-            book["author"] + " " +
-            " ".join(book["keywords"])
-        ).lower()
+            text = f"{book['name']} {book['author']} {' '.join(book['keywords'])}".lower()
+            score = ai_score(query, text)
 
-            score = similar(query, text)
-
-            if score > 0.5 or query in text:
+            if score > 0.45:
                results.append((score, book))
 
         if not results:
             bot.send_message(
             msg.chat.id,
-            "❌ No matching books found.\nTry different spelling."
+            "❌ No matching books found.\nTry different spelling or keywords."
         )
         
 
         results.sort(reverse=True, key=lambda x: x[0])
 
+        bot.send_message(msg.chat.id, f"🔍 Results for: <b>{raw_query}</b>\n")
+
         for _, book in results[:5]:
-           bot.send_message(
+            bot.send_message(
             msg.chat.id,
             f"📘 <b>{book['name']}</b>\n"
-            f"👤 {book['author']}\n\n"
+            f"👤 {book['author']}\n"
             f"⬇️ <a href='{book['link']}'>Download PDF</a>"
         )
         return
+
 
     @bot.message_handler(commands=["start"])
     def start(msg):
