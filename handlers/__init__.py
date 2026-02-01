@@ -89,7 +89,7 @@ def register_handlers(bot):
             msg.chat.id,
             "❌ No matching books found.\nTry different spelling."
         )
-        return
+        
 
         results.sort(reverse=True, key=lambda x: x[0])
 
@@ -100,6 +100,7 @@ def register_handlers(bot):
             f"👤 {book['author']}\n\n"
             f"⬇️ <a href='{book['link']}'>Download PDF</a>"
         )
+        return
 
     @bot.message_handler(commands=["start"])
     def start(msg):
