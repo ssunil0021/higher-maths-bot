@@ -1,4 +1,9 @@
 from dotenv import load_dotenv
+try:
+    from rapidfuzz import fuzz
+except:
+    fuzz = None
+
 load_dotenv()
 
 import os

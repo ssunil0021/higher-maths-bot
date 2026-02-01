@@ -9,7 +9,11 @@ from keyboards import csir_year_keyboard, csir_session_keyboard
 from data import BOOKS
 from keyboards import books_menu_keyboard
 from difflib import SequenceMatcher
-from rapidfuzz import fuzz
+try:
+    from rapidfuzz import fuzz
+except:
+    fuzz = None
+
 
 
 SEARCH_MODE = set()
@@ -49,16 +53,20 @@ HELP_MSG = """ℹ️ <b>How to use</b>
 📌 Tip: Practice PYQs year-wise for better understanding.
 """
 
-def similar(a, b):
-    return SequenceMatcher(None, a, b).ratio()
+
 
 def ai_score(query, text):
+    if not fuzz:
+        from difflib import SequenceMatcher
+        return SequenceMatcher(None, query, text).ratio()
+
     return max(
         fuzz.ratio(query, text),
         fuzz.partial_ratio(query, text),
         fuzz.token_sort_ratio(query, text),
         fuzz.token_set_ratio(query, text),
     ) / 100
+
 
 def safe_edit(bot, call, text, kb):
     try:
