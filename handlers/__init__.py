@@ -114,28 +114,8 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=["start"])
     def start(msg):
-        m = bot.send_message(msg.chat.id, "✨ Initializing bot…")
-
-        time.sleep(0.4)
-        bot.edit_message_text("📚 Loading resources…", msg.chat.id, m.message_id)
-
-        time.sleep(0.4)
-        bot.edit_message_text("📂 Preparing PYQs…", msg.chat.id, m.message_id)
-
-        time.sleep(0.4)
-        bot.edit_message_text("✅ Ready!", msg.chat.id, m.message_id)
-
-        bot.edit_message_text(
-        "📘 <b>Higher Mathematics Resource Bot</b>\n\n"
-        "• PYQs (CSIR-NET, NBHM, GATE, JAM, ISI, CMI)\n"
-        "• Books & PDFs\n"
-        "• Smart search\n"
-        "• More coming soon\n\n"
-        "👇 Choose an option below",
-        msg.chat.id,
-        m.message_id,
-        reply_markup=home_keyboard()
-        )
+        add_user(msg.from_user)
+        bot.send_message(msg.chat.id, WELCOME_MSG, reply_markup=home_keyboard())
 
 
 
