@@ -10,7 +10,7 @@ from data import BOOKS
 from keyboards import books_menu_keyboard
 from difflib import SequenceMatcher
 
-SEARCH_MODE = {}
+SEARCH_MODE = set()
 
 
 ADMIN_IDS = 5615871641
@@ -65,7 +65,41 @@ def safe_edit(bot, call, text, kb):
 
 def register_handlers(bot):
 
-    
+    @bot.message_handler(func=lambda msg: msg.from_user.id in SEARCH_MODE)
+    def book_search_handler(msg):
+        SEARCH_MODE.discard(msg.from_user.id)  # turn off search mode
+
+        query = msg.text.lower().strip()
+        results = []
+
+        for book in BOOKS:
+            text = (
+            book["name"] + " " +
+            book["author"] + " " +
+            " ".join(book["keywords"])
+        ).lower()
+
+            score = similar(query, text)
+
+            if score > 0.5 or query in text:
+               results.append((score, book))
+
+        if not results:
+            bot.send_message(
+            msg.chat.id,
+            "❌ No matching books found.\nTry different spelling."
+        )
+        return
+
+        results.sort(reverse=True, key=lambda x: x[0])
+
+        for _, book in results[:5]:
+           bot.send_message(
+            msg.chat.id,
+            f"📘 <b>{book['name']}</b>\n"
+            f"👤 {book['author']}\n\n"
+            f"⬇️ <a href='{book['link']}'>Download PDF</a>"
+        )
 
     @bot.message_handler(commands=["start"])
     def start(msg):
@@ -111,7 +145,7 @@ def register_handlers(bot):
 
 
         elif data == "booksearch":
-            SEARCH_MODE[call.from_user.id] = True
+            SEARCH_MODE.add(call.from_user.id)
             bot.send_message(call.message.chat.id,"🔍 Type book name / author / keyword:")
 
 
@@ -245,39 +279,5 @@ Select a year to download:
 
 
 
-    @bot.message_handler(func=lambda msg: SEARCH_MODE.get(msg.from_user.id, False))
-    def book_search_handler(msg):
-        SEARCH_MODE[msg.from_user.id] = False  # turn off search mode
-
-        query = msg.text.lower().strip()
-        results = []
-
-        for book in BOOKS:
-            text = (
-            book["name"] + " " +
-            book["author"] + " " +
-            " ".join(book["keywords"])
-        ).lower()
-
-            score = similar(query, text)
-
-            if score > 0.5 or query in text:
-               results.append((score, book))
-
-        if not results:
-            bot.send_message(
-            msg.chat.id,
-            "❌ No matching books found.\nTry different spelling."
-        )
-        return
-
-        results.sort(reverse=True, key=lambda x: x[0])
-
-        for _, book in results[:5]:
-           bot.send_message(
-            msg.chat.id,
-            f"📘 <b>{book['name']}</b>\n"
-            f"👤 {book['author']}\n\n"
-            f"⬇️ <a href='{book['link']}'>Download PDF</a>"
-        )
+    
 
