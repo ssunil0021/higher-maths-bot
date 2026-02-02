@@ -16,8 +16,9 @@ except:
     fuzz = None
 import time
 
+SEARCH_BOOK_MODE = set()
+ADD_BOOK_MODE = set()
 
-SEARCH_MODE = set()
 
 
 ADMIN_IDS = 5615871641
@@ -73,30 +74,33 @@ def safe_edit(bot, call, text, kb):
 
 def register_handlers(bot):
 
-    @bot.message_handler(func=lambda msg: msg.from_user.id in SEARCH_MODE)
+    @bot.message_handler(func=lambda msg: msg.from_user.id in SEARCH_BOOK_MODE)
     def book_search_handler(msg):
-        SEARCH_MODE.discard(msg.from_user.id)
+        SEARCH_BOOK_MODE.discard(msg.from_user.id)
 
-        loading = bot.send_message(msg.chat.id,"⏳ Searching books…\nPlease wait a moment")
+        loading = bot.send_message(msg.chat.id, "⏳ Searching books…")
 
         query = msg.text.lower().strip()
         results = []
 
         from difflib import SequenceMatcher
-
         def sim(a, b):
             return SequenceMatcher(None, a, b).ratio()
 
         for book in get_books():
-            text = f"{book['book_name']} {book['author']} {book['keywords']}".lower()
+            text = f"{book.get('book_name','')} {book.get('author','')} {book.get('keywords','')}".lower()
             if sim(query, text) > 0.45 or query in text:
                results.append(book)
-        
+
         bot.delete_message(msg.chat.id, loading.message_id)
 
         if not results:
-            bot.send_message(msg.chat.id, "❌ No matching books found.\nTry different spelling.", reply_markup=books_nav_keyboard())
-            return
+           bot.send_message(
+            msg.chat.id,
+            "❌ No matching books found.\nTry different spelling.",
+            reply_markup=books_nav_keyboard()
+        )
+           return
 
         for book in results[:5]:
             bot.send_message(
@@ -105,32 +109,16 @@ def register_handlers(bot):
             f"👤 {book['author']}\n"
             f"⬇️ <a href='{book['pdf_link']}'>Download PDF</a>"
         )
-        bot.send_message(msg.chat.id,"✨ <b>What next?</b>",reply_markup=books_nav_keyboard())
-        return
-        
-    @bot.message_handler(commands=["debugbooks"])
-    def debug_books(msg):
-        books = get_books()
-        bot.send_message(msg.chat.id, f"Books count: {len(books)}")
-        if books:
-           bot.send_message(msg.chat.id, str(books[0]))
-
-    
-    @bot.message_handler(commands=["addbook"])
-    def add_book_admin(msg):
-        if msg.from_user.id != ADMIN_IDS:
-           return
 
         bot.send_message(
         msg.chat.id,
-        "📘 Send book details in this format:\n\n"
-        "Book Name | Author | Subject | Keywords | PDF Link")
+        "✨ <b>What next?</b>",
+        reply_markup=books_nav_keyboard()
+    )
 
-        SEARCH_MODE.add(f"ADD_BOOK_{msg.from_user.id}")
-
-    @bot.message_handler(func=lambda m: f"ADD_BOOK_{m.from_user.id}" in SEARCH_MODE)
+    @bot.message_handler(func=lambda m: m.from_user.id in ADD_BOOK_MODE)
     def receive_book(msg):
-        SEARCH_MODE.discard(f"ADD_BOOK_{msg.from_user.id}")
+        ADD_BOOK_MODE.discard(msg.from_user.id)
 
         parts = msg.text.split("|")
         if len(parts) != 5:
@@ -147,8 +135,34 @@ def register_handlers(bot):
         "uploaded_by": "admin"
         }
 
+        import requests, os
         requests.post(os.getenv("BOOKS_SHEET_URL"), json=book)
-        bot.send_message(msg.chat.id, "✅ Book added successfully")
+
+        bot.send_message(msg.chat.id, "✅ Book added successfully") 
+    
+    
+    @bot.message_handler(commands=["addbook"])
+    def add_book_admin(msg):
+        if msg.from_user.id != ADMIN_IDS:
+           return
+ 
+        ADD_BOOK_MODE.add(msg.from_user.id)
+
+        bot.send_message(
+        msg.chat.id,
+        "📘 Send book details in this format:\n\n"
+        "Book Name | Author | Subject | Keywords | PDF Link"
+        )
+
+    @bot.message_handler(commands=["debugbooks"])
+    def debug_books(msg):
+        books = get_books()
+        bot.send_message(msg.chat.id, f"Books count: {len(books)}")
+        if books:
+           bot.send_message(msg.chat.id, str(books[0]))
+
+
+    
 
      
 
@@ -195,7 +209,13 @@ def register_handlers(bot):
 
         elif data == "bookbrowse":
             books = get_books()
-            bot.send_message(call.message.chat.id, str(books))
+            safe_edit(
+        bot,
+        call,
+        "📂 <b>Select subject</b>",
+        books_subject_keyboard(books)
+    )
+
 
 
         elif data.startswith("booksub|"):
@@ -203,13 +223,19 @@ def register_handlers(bot):
              books = [b for b in get_books() if b.get("subject") == subject]
 
              for book in books[:10]:
-                 bot.send_message(
+              bot.send_message(
             call.message.chat.id,
             f"📘 <b>{book['book_name']}</b>\n"
             f"👤 {book['author']}\n"
-            f"⬇️ <a href='{book['pdf_link']}'>Download PDF</a>")
+            f"⬇️ <a href='{book['pdf_link']}'>Download PDF</a>"
+        )
 
-             bot.send_message(call.message.chat.id,"✨ More options:",reply_markup=books_nav_keyboard())
+             bot.send_message(
+        call.message.chat.id,
+        "✨ More options:",
+        reply_markup=books_nav_keyboard()
+    )
+
 
 
 
@@ -222,11 +248,14 @@ def register_handlers(bot):
 
 
         elif data == "booksearch":
-            SEARCH_MODE.add(call.from_user.id)
-            bot.send_message(call.message.chat.id,"🔍 <b>Search books & PDFs</b>\n\n"
-"Type book name, author, or topic.\n"
-"<i>(typos also work)</i>"
-)
+             SEARCH_BOOK_MODE.add(call.from_user.id)
+             bot.send_message(
+        call.message.chat.id,
+        "🔍 <b>Search books & PDFs</b>\n\n"
+        "Type book name, author, or topic.\n"
+        "<i>(typos also work)</i>"
+    )
+
 
 
 
