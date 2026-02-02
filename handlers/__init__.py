@@ -5,8 +5,8 @@ from config import ADMIN_IDS
 #from user_stats import total_users
 from safe_stats import add_user
 from admin_stats import get_stats
-from keyboards import csir_year_keyboard, csir_session_keyboard
-from data import BOOKS
+from keyboards import csir_year_keyboard, csir_session_keyboard, books_subject_keyboard
+from books_data import get_books
 from keyboards import books_menu_keyboard
 from keyboards import books_nav_keyboard
 from difflib import SequenceMatcher
@@ -87,7 +87,7 @@ def register_handlers(bot):
         def sim(a, b):
             return SequenceMatcher(None, a, b).ratio()
 
-        for book in BOOKS:
+        for book in get_books():
             text = f"{book['name']} {book['author']} {' '.join(book['keywords'])}".lower()
             if sim(query, text) > 0.45 or query in text:
                results.append(book)
@@ -109,7 +109,41 @@ def register_handlers(bot):
         return
         
 
-         
+    @bot.message_handler(commands=["addbook"])
+    def add_book_admin(msg):
+        if msg.from_user.id != ADMIN_IDS:
+           return
+
+        bot.send_message(
+        msg.chat.id,
+        "📘 Send book details in this format:\n\n"
+        "Book Name | Author | Subject | Keywords | PDF Link")
+
+        SEARCH_MODE.add(f"ADD_BOOK_{msg.from_user.id}")
+
+    @bot.message_handler(func=lambda m: f"ADD_BOOK_{m.from_user.id}" in SEARCH_MODE)
+    def receive_book(msg):
+        SEARCH_MODE.discard(f"ADD_BOOK_{msg.from_user.id}")
+
+        parts = msg.text.split("|")
+        if len(parts) != 5:
+           bot.send_message(msg.chat.id, "❌ Invalid format")
+           return
+
+        book = {
+        "book_name": parts[0].strip(),
+        "author": parts[1].strip(),
+        "subject": parts[2].strip(),
+        "keywords": parts[3].strip(),
+        "pdf_link": parts[4].strip(),
+        "status": "approved",
+        "uploaded_by": "admin"
+        }
+
+        requests.post(os.getenv("BOOKS_SHEET_URL"), json=book)
+        bot.send_message(msg.chat.id, "✅ Book added successfully")
+
+     
 
 
     @bot.message_handler(commands=["start"])
@@ -151,6 +185,25 @@ def register_handlers(bot):
 
         elif data == "help":
             safe_edit(bot, call, HELP_MSG, home_keyboard())
+
+        elif data == "bookbrowse":
+             books = get_books()
+             safe_edit(bot,call,"📂 <b>Select subject</b>",books_subject_keyboard(books))
+
+        elif data.startswith("booksub|"):
+             subject = data.split("|")[1]
+             books = [b for b in get_books() if b.get("subject") == subject]
+
+             for book in books[:10]:
+                 bot.send_message(
+            call.message.chat.id,
+            f"📘 <b>{book['book_name']}</b>\n"
+            f"👤 {book['author']}\n"
+            f"⬇️ <a href='{book['pdf_link']}'>Download PDF</a>")
+
+             bot.send_message(call.message.chat.id,"✨ More options:",reply_markup=books_nav_keyboard())
+
+
 
         elif data == "books":
             safe_edit(bot,call,"📚 <b>Books & PDFs</b>\n\n"
