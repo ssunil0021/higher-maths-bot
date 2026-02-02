@@ -5,9 +5,8 @@ from config import ADMIN_IDS
 #from user_stats import total_users
 from safe_stats import add_user
 from admin_stats import get_stats
-from data import BOOKS
 from keyboards import csir_year_keyboard, csir_session_keyboard
-from sheet_books import get_books
+from data import BOOKS
 from keyboards import books_menu_keyboard
 from keyboards import books_nav_keyboard
 from difflib import SequenceMatcher
@@ -74,59 +73,40 @@ def safe_edit(bot, call, text, kb):
 
 def register_handlers(bot):
 
-    @bot.message_handler(func=lambda msg: msg.from_user.id in SEARCH_MODE, content_types=['text'])
+    @bot.message_handler(func=lambda msg: msg.from_user.id in SEARCH_MODE)
     def book_search_handler(msg):
-        user_id = msg.from_user.id
-        SEARCH_MODE.discard(user_id)
+        SEARCH_MODE.discard(msg.from_user.id)
+
+        loading = bot.send_message(msg.chat.id,"⏳ Searching books…\nPlease wait a moment")
 
         query = msg.text.lower().strip()
+        results = []
 
-        from sheet_books import get_books
-        from keyboards import books_nav_keyboard
         from difflib import SequenceMatcher
 
         def sim(a, b):
             return SequenceMatcher(None, a, b).ratio()
 
-        books = get_books()
-        results = []
-
-        for book in books:
-            text = f"""
-        {book.get('title','')}
-        {book.get('author','')}
-        {book.get('subject','')}
-        {book.get('topics','')}
-        {book.get('level','')}
-        {book.get('exam_tags','')}
-        """.lower()
-
-            if query in text or sim(query, text) > 0.4:
-                results.append(book)
+        for book in BOOKS:
+            text = f"{book['name']} {book['author']} {' '.join(book['keywords'])}".lower()
+            if sim(query, text) > 0.45 or query in text:
+               results.append(book)
+        
+        bot.delete_message(msg.chat.id, loading.message_id)
 
         if not results:
-           bot.send_message(
-            msg.chat.id,
-            "❌ No matching books found.\nTry different spelling.",
-            reply_markup=books_nav_keyboard()
-        )
-           return
+            bot.send_message(msg.chat.id, "❌ No matching books found.\nTry different spelling.", reply_markup=books_nav_keyboard())
+            return
 
         for book in results[:5]:
             bot.send_message(
             msg.chat.id,
-            f"📘 <b>{book['title']}</b>\n"
-            f"✍️ {book['author']}\n"
-            f"📚 {book['subject']} | {book['level']}\n"
-            f"⬇️ <a href='{book['link']}'>Open PDF</a>"
+            f"📘 <b>{book['name']}</b>\n"
+            f"👤 {book['author']}\n"
+            f"⬇️ <a href='{book['link']}'>Download PDF</a>"
         )
-
-        bot.send_message(
-        msg.chat.id,
-        "✨ What next?",
-        reply_markup=books_nav_keyboard()
-    )
-
+        bot.send_message(msg.chat.id,"✨ <b>What next?</b>",reply_markup=books_nav_keyboard())
+        return
         
 
          
@@ -180,29 +160,12 @@ def register_handlers(bot):
     "Choose an option below 👇",books_menu_keyboard())
 
 
-        elif data == "bookbrowse":
-             from sheet_books import get_books
-             books = get_books()
-             subjects = sorted(set(b["subject"] for b in books if b["subject"]))
-
-             from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-             kb = InlineKeyboardMarkup(row_width=2)
-
-             for s in subjects:
-                kb.add(InlineKeyboardButton(s, callback_data=f"booksub|{s}"))
-
-             kb.add(InlineKeyboardButton("⬅️ Back", callback_data="books"))
-             safe_edit(bot, call, "📚 <b>Select Subject</b>", kb)
-
-
         elif data == "booksearch":
-             SEARCH_MODE.add(call.from_user.id)
-             bot.send_message(call.message.chat.id,
-        "🔍 <b>Search books & PDFs</b>\n\n"
-        "Type book name, author, or topic.\n"
-        "<i>(typos also work)</i>"
-            )
-
+            SEARCH_MODE.add(call.from_user.id)
+            bot.send_message(call.message.chat.id,"🔍 <b>Search books & PDFs</b>\n\n"
+"Type book name, author, or topic.\n"
+"<i>(typos also work)</i>"
+)
 
 
 
@@ -332,26 +295,6 @@ Select a year to download:
 """
 
              bot.send_message(call.message.chat.id, text)
-  
-        elif data.startswith("booksub|"):
-             subject = data.split("|", 1)[1]
-             books = [b for b in get_books() if b["subject"] == subject]
-
-             for book in books[:5]:
-                 bot.send_message(
-            call.message.chat.id,
-            f"📘 <b>{book['title']}</b>\n"
-            f"✍️ {book['author']}\n"
-            f"🎯 {book['level']}\n"
-            f"⬇️ <a href='{book['link']}'>Open PDF</a>"
-             )
-
-             bot.send_message(
-            call.message.chat.id,
-             "✨ More options:",
-             reply_markup=books_nav_keyboard()
-             )
-
 
 
 
