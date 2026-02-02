@@ -220,21 +220,53 @@ def register_handlers(bot):
 
         elif data.startswith("booksub|"):
              subject = data.split("|")[1]
+             page = 0
+             PAGE_SIZE = 10
+
              books = [b for b in get_books() if b.get("subject") == subject]
 
-             for book in books[:10]:
-              bot.send_message(
-            call.message.chat.id,
-            f"📘 <b>{book['book_name']}</b>\n"
-            f"👤 {book['author']}\n"
-            f"⬇️ <a href='{book['pdf_link']}'>Download PDF</a>"
+             if not books:
+                bot.send_message(call.message.chat.id,"❌ No books available for this subject.")
+                return
+
+             total_pages = (len(books) + PAGE_SIZE - 1) // PAGE_SIZE
+             start = page * PAGE_SIZE
+             end = start + PAGE_SIZE
+
+             text = f"📚 <b>{subject}</b>\n\n"
+
+             for b in books[start:end]:
+               text += (
+            f"📘 <b>{b['book_name']}</b>\n"
+            f"👤 {b['author']}\n"
+            f"⬇️ <a href='{b['pdf_link']}'>Download PDF</a>\n\n"
         )
 
-             bot.send_message(
-        call.message.chat.id,
-        "✨ More options:",
-        reply_markup=books_nav_keyboard()
-    )
+             from keyboards import books_page_keyboard
+             bot.send_message(call.message.chat.id,text,reply_markup=books_page_keyboard(subject, page, total_pages))
+
+
+        elif data.startswith("bookpage|"):
+            _, subject, page = data.split("|")
+            page = int(page)
+            PAGE_SIZE = 10
+
+            books = [b for b in get_books() if b.get("subject") == subject]
+
+            total_pages = (len(books) + PAGE_SIZE - 1) // PAGE_SIZE
+            start = page * PAGE_SIZE
+            end = start + PAGE_SIZE
+
+            text = f"📚 <b>{subject}</b>\n\n"
+
+            for b in books[start:end]:
+                text += (
+            f"📘 <b>{b['book_name']}</b>\n"
+            f"👤 {b['author']}\n"
+            f"⬇️ <a href='{b['pdf_link']}'>Download PDF</a>\n\n")
+
+            from keyboards import books_page_keyboard
+            bot.edit_message_text(text,call.message.chat.id,call.message.message_id,reply_markup=books_page_keyboard(subject, page, total_pages))
 
 
 
