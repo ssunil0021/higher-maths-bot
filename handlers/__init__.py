@@ -108,7 +108,14 @@ def register_handlers(bot):
         bot.send_message(msg.chat.id,"✨ <b>What next?</b>",reply_markup=books_nav_keyboard())
         return
         
+    @bot.message_handler(commands=["debugbooks"])
+    def debug_books(msg):
+        books = get_books()
+        bot.send_message(msg.chat.id, f"Books count: {len(books)}")
+        if books:
+           bot.send_message(msg.chat.id, str(books[0]))
 
+    
     @bot.message_handler(commands=["addbook"])
     def add_book_admin(msg):
         if msg.from_user.id != ADMIN_IDS:
