@@ -219,31 +219,33 @@ def register_handlers(bot):
 
 
         elif data.startswith("booksub|"):
-             subject = data.split("|")[1]
-             page = 0
-             PAGE_SIZE = 10
+             slug = data.split("|")[1]
 
-             books = [b for b in get_books() if b.get("subject") == subject]
+             def normalize(s):
+                 return s.lower().replace(" ", "_")
+
+             books = [
+                 b for b in get_books()
+                 if normalize(b.get("subject", "")) == slug
+             ]
 
              if not books:
-                bot.send_message(call.message.chat.id,"❌ No books available for this subject.")
+                bot.send_message(
+            call.message.chat.id,
+            "❌ No books found for this subject.")
                 return
 
-             total_pages = (len(books) + PAGE_SIZE - 1) // PAGE_SIZE
-             start = page * PAGE_SIZE
-             end = start + PAGE_SIZE
+             text = "📚 <b>Books</b>\n\n"
 
-             text = f"📚 <b>{subject}</b>\n\n"
-
-             for b in books[start:end]:
-               text += (
+             for b in books[:10]:
+                text += (
             f"📘 <b>{b['book_name']}</b>\n"
             f"👤 {b['author']}\n"
-            f"⬇️ <a href='{b['pdf_link']}'>Download PDF</a>\n\n"
-        )
+            f"⬇️ <a href='{b['pdf_link']}'>Download PDF</a>\n\n")
 
-             from keyboards import books_page_keyboard
-             bot.send_message(call.message.chat.id,text,reply_markup=books_page_keyboard(subject, page, total_pages))
+             from keyboards import books_nav_keyboard
+             bot.send_message(call.message.chat.id,text,reply_markup=books_nav_keyboard())
+
 
 
         elif data.startswith("bookpage|"):

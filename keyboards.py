@@ -96,12 +96,46 @@ def books_nav_keyboard():
 
 def books_subject_keyboard(books):
     from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+
     kb = InlineKeyboardMarkup(row_width=2)
 
-    subjects = sorted(set(b["subject"] for b in books if b.get("subject")))
+    subjects = sorted(
+        set(b.get("subject") for b in books if b.get("subject"))
+    )
 
-    for s in subjects:
-        kb.add(InlineKeyboardButton(s, callback_data=f"booksub|{s}"))
+    for subject in subjects:
+        slug = subject.lower().replace(" ", "_")
+        kb.add(
+            InlineKeyboardButton(
+                subject,
+                callback_data=f"booksub|{slug}"
+            )
+        )
 
     kb.add(InlineKeyboardButton("⬅️ Back", callback_data="books"))
+    return kb
+
+def books_page_keyboard(subject, page, total_pages):
+    kb = InlineKeyboardMarkup(row_width=2)
+
+    if page > 0:
+        kb.add(
+            InlineKeyboardButton(
+                "⬅️ Prev",
+                callback_data=f"bookpage|{subject}|{page-1}"
+            )
+        )
+
+    if page < total_pages - 1:
+        kb.add(
+            InlineKeyboardButton(
+                "➡️ Next",
+                callback_data=f"bookpage|{subject}|{page+1}"
+            )
+        )
+
+    kb.add(
+        InlineKeyboardButton("📚 Books", callback_data="books"),
+        InlineKeyboardButton("🏠 Home", callback_data="home")
+    )
     return kb
