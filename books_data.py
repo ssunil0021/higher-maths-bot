@@ -1,31 +1,24 @@
-import requests, os, time
-
-BOOKS_CACHE = []
-LAST_FETCH = 0
-CACHE_TTL = 300  # 5 minutes
-
-SHEET_URL = os.getenv("https://script.google.com/macros/s/AKfycbyTsGBu0_NRT1xgpKPqIwrTo4HiD6vJCqeQxWKLEU56-tPCngrcM8r8ANS6sATwa2PQIg/exec")
-
-print("BOOKS_SHEET_URL =", os.getenv("BOOKS_SHEET_URL"))
-
+import requests, os
 
 def get_books():
-    global BOOKS_CACHE, LAST_FETCH
+    url = os.getenv("BOOKS_SHEET_URL")
+    print("URL FROM ENV =", url)
 
-    if not SHEET_URL:
+    if not url:
+        print("❌ URL is None")
         return []
 
-    now = time.time()
-    if now - LAST_FETCH < CACHE_TTL:
-        return BOOKS_CACHE
-
     try:
-        r = requests.get(SHEET_URL, timeout=5)
+        r = requests.get(url, timeout=10)
+        print("STATUS =", r.status_code)
+        print("TEXT (first 300 chars) =", r.text[:300])
+
         data = r.json()
+        print("TYPE =", type(data))
+        print("LEN =", len(data) if isinstance(data, list) else "not list")
 
-        BOOKS_CACHE = data
+        return data if isinstance(data, list) else []
 
-        LAST_FETCH = now
-        return BOOKS_CACHE
-    except:
-        return BOOKS_CACHE
+    except Exception as e:
+        print("❌ EXCEPTION =", e)
+        return []
