@@ -6,6 +6,9 @@ CACHE_TTL = 300  # 5 minutes
 
 SHEET_URL = os.getenv("https://script.google.com/macros/s/AKfycbyTsGBu0_NRT1xgpKPqIwrTo4HiD6vJCqeQxWKLEU56-tPCngrcM8r8ANS6sATwa2PQIg/exec")
 
+print("BOOKS_SHEET_URL =", os.getenv("BOOKS_SHEET_URL"))
+
+
 def get_books():
     global BOOKS_CACHE, LAST_FETCH
 
