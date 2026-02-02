@@ -15,8 +15,6 @@ try:
 except:
     fuzz = None
 import time
-from ai.ai_search import smart_search
-
 
 
 SEARCH_MODE = set()
@@ -79,24 +77,39 @@ def register_handlers(bot):
     def book_search_handler(msg):
         SEARCH_MODE.discard(msg.from_user.id)
 
-        from ai.ai_search import smart_search
+        loading = bot.send_message(msg.chat.id,"⏳ Searching books…\nPlease wait a moment")
 
-        results = smart_search(msg.text)   # 👈 YAHI ADD HUA
+        query = msg.text.lower().strip()
+        results = []
 
-        if not results:                    # 👈 YAHI ADD HUA
-            bot.send_message(
-            msg.chat.id,
-            "❌ No book found.\nTry different spelling or author name."
-        )
+        from difflib import SequenceMatcher
+
+        def sim(a, b):
+            return SequenceMatcher(None, a, b).ratio()
+
+        for book in BOOKS:
+            text = f"{book['name']} {book['author']} {' '.join(book['keywords'])}".lower()
+            if sim(query, text) > 0.45 or query in text:
+               results.append(book)
+        
+        bot.delete_message(msg.chat.id, loading.message_id)
+
+        if not results:
+            bot.send_message(msg.chat.id, "❌ No matching books found.\nTry different spelling.", reply_markup=books_nav_keyboard())
             return
 
-        for book in results:
+        for book in results[:5]:
             bot.send_message(
             msg.chat.id,
             f"📘 <b>{book['name']}</b>\n"
-            f"👤 {book['author']}\n\n"
+            f"👤 {book['author']}\n"
             f"⬇️ <a href='{book['link']}'>Download PDF</a>"
         )
+        bot.send_message(msg.chat.id,"✨ <b>What next?</b>",reply_markup=books_nav_keyboard())
+        return
+        
+
+         
 
 
     @bot.message_handler(commands=["start"])
