@@ -88,7 +88,7 @@ def register_handlers(bot):
             return SequenceMatcher(None, a, b).ratio()
 
         for book in get_books():
-            text = f"{book['name']} {book['author']} {' '.join(book['keywords'])}".lower()
+            text = f"{book['book_name']} {book['author']} {book['keywords']}".lower()
             if sim(query, text) > 0.45 or query in text:
                results.append(book)
         
@@ -101,9 +101,9 @@ def register_handlers(bot):
         for book in results[:5]:
             bot.send_message(
             msg.chat.id,
-            f"📘 <b>{book['name']}</b>\n"
+            f"📘 <b>{book['book_name']}</b>\n"
             f"👤 {book['author']}\n"
-            f"⬇️ <a href='{book['link']}'>Download PDF</a>"
+            f"⬇️ <a href='{book['pdf_link']}'>Download PDF</a>"
         )
         bot.send_message(msg.chat.id,"✨ <b>What next?</b>",reply_markup=books_nav_keyboard())
         return
@@ -187,8 +187,9 @@ def register_handlers(bot):
             safe_edit(bot, call, HELP_MSG, home_keyboard())
 
         elif data == "bookbrowse":
-             books = get_books()
-             safe_edit(bot,call,"📂 <b>Select subject</b>",books_subject_keyboard(books))
+            books = get_books()
+            bot.send_message(call.message.chat.id, str(books))
+
 
         elif data.startswith("booksub|"):
              subject = data.split("|")[1]
