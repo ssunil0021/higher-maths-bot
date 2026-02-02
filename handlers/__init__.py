@@ -90,16 +90,16 @@ def register_handlers(bot):
         books = get_books()
 
         for book in books:
-           text = f"""
-           {book['title']}
-           {book['author']}
-           {book['subject']}
-           {book['topics']}
-           {book['level']}
-           {book['exam_tags']}
-            """.lower()
+            text = f"""
+            {book.get('title','')}
+            {book.get('author','')}
+            {book.get('subject','')}
+            {book.get('topics','')}
+            {book.get('level','')}
+            {book.get('exam_tags','')}
+             """.lower()
 
-           if sim(query, text) > 0.45 or query in text:
+            if query in text or sim(query, text) > 0.4:
                results.append(book)
 
         

@@ -24,7 +24,7 @@ def load_books():
 
     books = []
     for row in rows:
-        if row.get("status") != "approved":
+        if row.get("status", "").lower() != "approved":
             continue
 
         books.append({
