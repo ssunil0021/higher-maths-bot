@@ -6,7 +6,7 @@ from config import ADMIN_IDS
 from safe_stats import add_user
 from admin_stats import get_stats
 from keyboards import csir_year_keyboard, csir_session_keyboard
-from data import BOOKS
+from sheet_books import get_books
 from keyboards import books_menu_keyboard
 from keyboards import books_nav_keyboard
 from difflib import SequenceMatcher
@@ -87,10 +87,21 @@ def register_handlers(bot):
         def sim(a, b):
             return SequenceMatcher(None, a, b).ratio()
 
-        for book in BOOKS:
-            text = f"{book['name']} {book['author']} {' '.join(book['keywords'])}".lower()
-            if sim(query, text) > 0.45 or query in text:
+        books = get_books()
+
+        for book in books:
+           text = f"""
+           {book['title']}
+           {book['author']}
+           {book['subject']}
+           {book['topics']}
+           {book['level']}
+           {book['exam_tags']}
+            """.lower()
+
+           if sim(query, text) > 0.45 or query in text:
                results.append(book)
+
         
         bot.delete_message(msg.chat.id, loading.message_id)
 
@@ -100,11 +111,13 @@ def register_handlers(bot):
 
         for book in results[:5]:
             bot.send_message(
-            msg.chat.id,
-            f"📘 <b>{book['name']}</b>\n"
-            f"👤 {book['author']}\n"
-            f"⬇️ <a href='{book['link']}'>Download PDF</a>"
-        )
+                msg.chat.id,
+                f"📘 <b>{book['title']}</b>\n"
+                f"✍️ {book['author']}\n"
+                f"📚 {book['subject']} | {book['level']}\n"
+                f"⬇️ <a href='{book['link']}'>Open PDF</a>"
+                )
+
         bot.send_message(msg.chat.id,"✨ <b>What next?</b>",reply_markup=books_nav_keyboard())
         return
         
@@ -295,6 +308,40 @@ Select a year to download:
 """
 
              bot.send_message(call.message.chat.id, text)
+
+
+        elif data == "bookbrowse":
+             books = get_books()
+             subjects = sorted(set(b["subject"] for b in books if b["subject"]))
+
+             from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+             kb = InlineKeyboardMarkup(row_width=2)
+
+             for s in subjects:
+                 kb.add(InlineKeyboardButton(s, callback_data=f"booksub|{s}"))
+
+             kb.add(InlineKeyboardButton("⬅️ Back", callback_data="books"))
+             safe_edit(bot, call, "📚 <b>Select Subject</b>", kb)
+  
+        elif data.startswith("booksub|"):
+             subject = data.split("|", 1)[1]
+             books = [b for b in get_books() if b["subject"] == subject]
+
+             for book in books[:5]:
+                 bot.send_message(
+            call.message.chat.id,
+            f"📘 <b>{book['title']}</b>\n"
+            f"✍️ {book['author']}\n"
+            f"🎯 {book['level']}\n"
+            f"⬇️ <a href='{book['link']}'>Open PDF</a>"
+             )
+
+             bot.send_message(
+            call.message.chat.id,
+             "✨ More options:",
+             reply_markup=books_nav_keyboard()
+             )
+
 
 
 

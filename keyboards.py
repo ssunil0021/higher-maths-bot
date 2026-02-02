@@ -79,7 +79,7 @@ def books_menu_keyboard():
     kb = InlineKeyboardMarkup(row_width=1)
     kb.add(
         InlineKeyboardButton("🔍 Search book", callback_data="booksearch"),
-        InlineKeyboardButton("📂 Browse topics", callback_data="bookbrowse"),
+        InlineKeyboardButton("📂 Browse by Subjects", callback_data="bookbrowse"),
         InlineKeyboardButton("🏠 Home", callback_data="home")
     )
     return kb
