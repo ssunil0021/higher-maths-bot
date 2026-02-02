@@ -1,12 +1,11 @@
-# sheet_books.py
 import os
 import requests
 
-BOOKS_SHEET_URL = os.getenv("BOOKS_SHEET_URL")
+BOOKS_SHEET_URL = os.getenv("https://script.google.com/macros/s/AKfycbweKyQJZ8bJ7FGBlshhDFBQmZCcIc8Qmmy9fze51a8N5LLk22FF3YUFJGp6onhbIth8IA/exec")
 
 _CACHE = {
     "data": [],
-    "last_fetch": 0
+    "ts": 0
 }
 
 CACHE_TTL = 60  # seconds
@@ -23,19 +22,24 @@ def load_books():
         return []
 
     books = []
+
     for row in rows:
         if row.get("status", "").lower() != "approved":
             continue
 
         books.append({
-            "id": row.get("book_id", ""),
-            "title": row.get("title", ""),
-            "author": row.get("author", ""),
-            "subject": row.get("subject", ""),
-            "topics": row.get("topics", ""),
-            "level": row.get("level", ""),
-            "exam_tags": row.get("exam_tags", ""),
-            "link": row.get("pdf_link", "")
+            "name": row.get("title", "").strip(),
+            "author": row.get("author", "").strip(),
+            "subject": row.get("subject", "").strip(),
+            "keywords": [
+                k.strip().lower()
+                for k in (
+                    row.get("topics", "") + "," +
+                    row.get("exam_tags", "")
+                ).split(",")
+                if k.strip()
+            ],
+            "link": row.get("pdf_link", "").strip()
         })
 
     return books
@@ -45,10 +49,10 @@ def get_books():
     import time
     now = time.time()
 
-    if now - _CACHE["last_fetch"] < CACHE_TTL:
+    if now - _CACHE["ts"] < CACHE_TTL:
         return _CACHE["data"]
 
     data = load_books()
     _CACHE["data"] = data
-    _CACHE["last_fetch"] = now
+    _CACHE["ts"] = now
     return data

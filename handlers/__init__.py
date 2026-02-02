@@ -5,6 +5,7 @@ from config import ADMIN_IDS
 #from user_stats import total_users
 from safe_stats import add_user
 from admin_stats import get_stats
+from data import BOOKS
 from keyboards import csir_year_keyboard, csir_session_keyboard
 from sheet_books import get_books
 from keyboards import books_menu_keyboard
