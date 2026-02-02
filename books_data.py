@@ -20,10 +20,8 @@ def get_books():
         r = requests.get(SHEET_URL, timeout=5)
         data = r.json()
 
-        BOOKS_CACHE = [
-            b for b in data
-            if str(b.get("status")).lower() == "approved"
-        ]
+        BOOKS_CACHE = data
+
         LAST_FETCH = now
         return BOOKS_CACHE
     except:
