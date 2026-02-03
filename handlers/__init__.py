@@ -271,7 +271,7 @@ def register_handlers(bot):
 
         elif data.startswith("booksub|"):
              slug = data.split("|")[1]
-             slug = slug.title()
+             
 
              def normalize(s):
                  return s.lower().replace(" ", "_")
