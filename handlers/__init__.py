@@ -285,7 +285,9 @@ def register_handlers(bot):
                 bot.send_message(call.message.chat.id, "❌ No books found")
                 return
 
-             text = f"📚 <b>{slug}</b>\n\n"
+             
+             heading = slug.replace("_", " ").title()
+             text = f"📚 <b>{heading}</b>\n\n"
 
              for book in books[:10]:
                  title=book.get("book_name", "").strip()
@@ -301,7 +303,7 @@ def register_handlers(bot):
 
              bot.send_message(call.message.chat.id, text, parse_mode='HTML')
 
-             bot.send_message(call.message.chat.id,"✨ More options:",reply_markup=books_nav_keyboard())
+             bot.send_message(call.message.chat.id,reply_markup=books_nav_keyboard())
 
 
 
