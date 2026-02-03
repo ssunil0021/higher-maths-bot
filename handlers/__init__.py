@@ -303,7 +303,7 @@ def register_handlers(bot):
 
              bot.send_message(call.message.chat.id, text, parse_mode='HTML')
 
-             bot.send_message(call.message.chat.id,reply_markup=books_nav_keyboard())
+             bot.send_message(call.message.chat.id, reply_markup=books_nav_keyboard())
 
 
 

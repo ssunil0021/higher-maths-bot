@@ -3,7 +3,7 @@ from data import EXAMS, PDF_LINKS
 
 
 def home_keyboard():
-    kb = InlineKeyboardMarkup()
+    kb = InlineKeyboardMarkup(row_width=1)
     kb.add(
         InlineKeyboardButton("📂 PYQs", callback_data="pyqs"),
         InlineKeyboardButton("📚 Books & PDFs", callback_data="books"),
