@@ -284,13 +284,16 @@ def register_handlers(bot):
                 bot.send_message(call.message.chat.id, "❌ No books found")
                 return
 
+             text = f"📚 <b>{subject}</b>\n\n"
+
              for book in books[:10]:
-                 bot.send_message(
-            call.message.chat.id,
+                 text += (
             f"📘 <a href='{book['pdf_link']}'>"
             f"{book['book_name']} — {book['author']}"
-            f"</a>"
+            f"</a>\n"
         )
+
+             bot.send_message(call.message.chat.id, text)
 
              bot.send_message(call.message.chat.id,"✨ More options:",reply_markup=books_nav_keyboard())
 
