@@ -295,11 +295,11 @@ def register_handlers(bot):
             f"</a>\n"
              )
             
-             bot.send_message(call.message.chat.id, text)
+             bot.send_message(call.message.chat.id, text, parse_mode = "HTML", disable_web_page_preview=True)
 
 
              from keyboards import books_nav_keyboard
-             bot.send_message(call.message.chat.id,text,reply_markup=books_nav_keyboard())
+             bot.send_message(call.message.chat.id,reply_markup=books_nav_keyboard())
 
 
 
