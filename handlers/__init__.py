@@ -289,10 +289,8 @@ def register_handlers(bot):
              text = "📚 <b>Books</b>\n\n"
 
              for b in books[:10]:
-                text += (
-            f"📘 <b>{b['book_name']}</b>\n"
-            f"👤 {b['author']}\n"
-            f"⬇️ <a href='{b['pdf_link']}'>Download PDF</a>\n\n")
+                bot.send_message(call.message.chat.id,f"📘 <a href='{book['pdf_link']}'>"f"{book['book_name']} — {book['author']}"f"</a>")
+
 
              from keyboards import books_nav_keyboard
              bot.send_message(call.message.chat.id,text,reply_markup=books_nav_keyboard())
