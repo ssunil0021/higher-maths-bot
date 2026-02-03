@@ -19,6 +19,8 @@ import time
 SEARCH_BOOK_MODE = set()
 ADD_BOOK_MODE = set()
 
+BOOK_ADD_STEP = {}
+BOOK_WIZARD = {}
 
 
 ADMIN_IDS = 5615871641
@@ -142,17 +144,63 @@ def register_handlers(bot):
     
     
     @bot.message_handler(commands=["addbook"])
-    def add_book_admin(msg):
+    def add_book_start(msg):
         if msg.from_user.id != ADMIN_IDS:
            return
- 
-        ADD_BOOK_MODE.add(msg.from_user.id)
 
-        bot.send_message(
-        msg.chat.id,
-        "📘 Send book details in this format:\n\n"
-        "Book Name | Author | Subject | Keywords | PDF Link"
+        uid = msg.from_user.id
+        BOOK_ADD_STEP[uid] = 1
+        BOOK_WIZARD[uid] = {}
+
+        bot.send_message(msg.chat.id,"📘 <b>Add New Book</b>\n\n""Step 1️⃣: Send <b>Book Name</b>")
+
+    @bot.message_handler(func=lambda m: m.from_user.id in BOOK_ADD_STEP)
+    def add_book_wizard(msg):
+        uid = msg.from_user.id
+        step = BOOK_ADD_STEP.get(uid)
+
+        if step == 1:
+           BOOK_WIZARD[uid]["book_name"] = msg.text.strip()
+           BOOK_ADD_STEP[uid] = 2
+           bot.send_message(msg.chat.id, "Step 2️⃣: Send <b>Author Name</b>")
+
+        elif step == 2:
+           BOOK_WIZARD[uid]["author"] = msg.text.strip()
+           BOOK_ADD_STEP[uid] = 3
+           bot.send_message(msg.chat.id, "Step 3️⃣: Send <b>Subject</b>\n(e.g. Linear Algebra)")
+
+        elif step == 3:
+           BOOK_WIZARD[uid]["subject"] = msg.text.strip()
+           BOOK_ADD_STEP[uid] = 4
+           bot.send_message(msg.chat.id, "Step 4️⃣: Send <b>Keywords</b>\n(comma separated)")
+
+        elif step == 4:
+           BOOK_WIZARD[uid]["keywords"] = msg.text.strip()
+           BOOK_ADD_STEP[uid] = 5
+           bot.send_message(msg.chat.id, "Step 5️⃣: Send <b>PDF Download Link</b>")
+
+        elif step == 5:
+           BOOK_WIZARD[uid]["pdf_link"] = msg.text.strip()
+
+           book = BOOK_WIZARD[uid]
+           book["status"] = "approved"
+           book["uploaded_by"] = "admin"
+
+           import requests, os
+           requests.post(os.getenv("BOOKS_SHEET_URL"), json=book)
+
+           bot.send_message(
+            msg.chat.id,
+            "✅ <b>Book added successfully!</b>\n\n"
+            f"📘 {book['book_name']}\n"
+            f"👤 {book['author']}\n"
+            f"📂 {book['subject']}"
         )
+
+        # cleanup
+           BOOK_ADD_STEP.pop(uid, None)
+           BOOK_WIZARD.pop(uid, None)
+
 
     @bot.message_handler(commands=["debugbooks"])
     def debug_books(msg):
