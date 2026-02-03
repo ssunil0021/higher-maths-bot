@@ -288,7 +288,7 @@ def register_handlers(bot):
 
              text = "📚 <b>Books</b>\n\n"
 
-             for b in books[:10]:
+             for book in books[:10]:
                 bot.send_message(call.message.chat.id,f"📘 <a href='{book['pdf_link']}'>"f"{book['book_name']} — {book['author']}"f"</a>")
 
 
