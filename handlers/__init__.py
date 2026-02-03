@@ -271,6 +271,7 @@ def register_handlers(bot):
 
         elif data.startswith("booksub|"):
              subject = data.split("|")[1]
+             subject = subject.title()
 
              def normalize(s):
                  return s.lower().replace(" ", "_")
@@ -287,11 +288,16 @@ def register_handlers(bot):
              text = f"📚 <b>{subject}</b>\n\n"
 
              for book in books[:10]:
-                 text += (
-            f"📘 <a href='{book['pdf_link']}'>"
-            f"{book['book_name']} — {book['author']}"
-            f"</a>\n\n"
-        )
+                 title=book.get("book_name", "").strip()
+                 author=book.get("author", "").strip()
+                 link=book.get("pdf_link", "").strip()
+
+                 if author:
+                    line = f"{title} — {author}"
+                 else:
+                    line = title
+
+                 text += f"📘 <b>{line}</b>\n{link}\n\n"
 
              bot.send_message(call.message.chat.id, text, parse_mode='HTML', disable_web_page_preview=True)
 
