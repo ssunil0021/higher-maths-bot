@@ -157,7 +157,7 @@ def register_handlers(bot):
     @bot.message_handler(func=lambda m: m.from_user.id in BOOK_ADD_STEP)
     def add_book_wizard(msg):
         uid = msg.from_user.id
-        step = BOOK_ADD_STEP.get(uid)
+        step = BOOK_ADD_STEP[uid]
 
         if step == 1:
            BOOK_WIZARD[uid]["book_name"] = msg.text.strip()
@@ -177,9 +177,14 @@ def register_handlers(bot):
         elif step == 4:
            BOOK_WIZARD[uid]["keywords"] = msg.text.strip()
            BOOK_ADD_STEP[uid] = 5
-           bot.send_message(msg.chat.id, "Step 5️⃣: Send <b>PDF Download Link</b>")
+           bot.send_message(msg.chat.id,"Step 5️⃣: Send <b>Exam tags</b>\n(e.g. csir,gate,jam)")
 
         elif step == 5:
+           BOOK_WIZARD[uid]["exam_tags"] = msg.text.strip()
+           BOOK_ADD_STEP[uid] = 6
+           bot.send_message(msg.chat.id, "Step 6️⃣: Send <b>PDF Download Link</b>")
+
+        elif step == 6:
            BOOK_WIZARD[uid]["pdf_link"] = msg.text.strip()
 
            book = BOOK_WIZARD[uid]
@@ -187,17 +192,15 @@ def register_handlers(bot):
            book["uploaded_by"] = "admin"
 
            import requests, os
-           requests.post(os.getenv("BOOKS_SHEET_URL"), json=book)
+           r = requests.post(os.getenv("BOOKS_SHEET_URL"), json=book)
 
            bot.send_message(
             msg.chat.id,
             "✅ <b>Book added successfully!</b>\n\n"
             f"📘 {book['book_name']}\n"
             f"👤 {book['author']}\n"
-            f"📂 {book['subject']}"
-        )
+            f"📂 {book['subject']}")
 
-        # cleanup
            BOOK_ADD_STEP.pop(uid, None)
            BOOK_WIZARD.pop(uid, None)
 
