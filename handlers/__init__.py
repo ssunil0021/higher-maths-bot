@@ -270,22 +270,22 @@ def register_handlers(bot):
 
 
         elif data.startswith("booksub|"):
-             subject = data.split("|")[1]
-             subject = subject.title()
+             slug = data.split("|")[1]
+             slug = slug.title()
 
              def normalize(s):
                  return s.lower().replace(" ", "_")
 
              books = [
                  b for b in get_books()
-                 if normalize(b.get("subject", "")) == subject
+                 if normalize(b.get("subject", "")) == slug
              ]
 
              if not books:
                 bot.send_message(call.message.chat.id, "❌ No books found")
                 return
 
-             text = f"📚 <b>{subject}</b>\n\n"
+             text = f"📚 <b>{slug}</b>\n\n"
 
              for book in books[:10]:
                  title=book.get("book_name", "").strip()
@@ -299,7 +299,7 @@ def register_handlers(bot):
 
                  text += f"📘 <b>{line}</b>\n{link}\n\n"
 
-             bot.send_message(call.message.chat.id, text, parse_mode='HTML', disable_web_page_preview=True)
+             bot.send_message(call.message.chat.id, text, parse_mode='HTML')
 
              bot.send_message(call.message.chat.id,"✨ More options:",reply_markup=books_nav_keyboard())
 
