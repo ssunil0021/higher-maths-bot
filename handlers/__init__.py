@@ -301,9 +301,8 @@ def register_handlers(bot):
 
                  text += f"📘 <a href=\"{link}\">{line}</a>\n\n"
 
-             bot.send_message(call.message.chat.id, text, parse_mode='HTML')
+             bot.send_message(call.message.chat.id, text, parse_mode='HTML', disable_web_page_preview=True, reply_markup=books_nav_keyboard())
 
-             bot.send_message(call.message.chat.id, reply_markup=books_nav_keyboard())
 
 
 
