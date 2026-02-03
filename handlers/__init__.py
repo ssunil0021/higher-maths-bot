@@ -294,6 +294,8 @@ def register_handlers(bot):
             f"{book['book_name']} — {book['author']}"
             f"</a>\n"
              )
+            
+             bot.send_message(call.message.chat.id, text)
 
 
              from keyboards import books_nav_keyboard
