@@ -270,8 +270,10 @@ def register_handlers(bot):
 
 
         elif data.startswith("booksub|"):
-             subject = data.split("|")[1]
-             books = [b for b in get_books() if b.get("subject") == subject]
+             subject = data.split("|")[1].strip().lower()
+
+             books = [b for b in get_books()
+                  if b.get("subject", "").strip().lower() == subject]
 
              if not books:
                 bot.send_message(call.message.chat.id, "❌ No books found")
