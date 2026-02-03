@@ -270,31 +270,23 @@ def register_handlers(bot):
 
 
         elif data.startswith("booksub|"):
-             subject = data.split("|")[1].strip().lower()
-
-             books = [b for b in get_books()
-                  if b.get("subject", "").strip().lower() == subject]
+             subject = data.split("|")[1]
+             books = [b for b in get_books() if b.get("subject") == subject]
 
              if not books:
                 bot.send_message(call.message.chat.id, "❌ No books found")
                 return
 
-             text = f"📚 <b>{subject}</b>\n\n"
-
              for book in books[:10]:
-                 text += (
+                 bot.send_message(
+            call.message.chat.id,
             f"📘 <a href='{book['pdf_link']}'>"
             f"{book['book_name']} — {book['author']}"
-            f"</a>\n"
+            f"</a>"
         )
 
-             bot.send_message(call.message.chat.id, text)
+             bot.send_message(call.message.chat.id,"✨ More options:",reply_markup=books_nav_keyboard())
 
-             bot.send_message(
-        call.message.chat.id,
-        "✨ More options:",
-        reply_markup=books_nav_keyboard()
-    )
 
 
 
