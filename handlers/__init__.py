@@ -286,10 +286,14 @@ def register_handlers(bot):
             "❌ No books found for this subject.")
                 return
 
-             text = "📚 <b>Books</b>\n\n"
+             text = f"📚 <b>{subject}</b>\n\n"
 
              for book in books[:10]:
-                bot.send_message(call.message.chat.id,f"📘 <a href='{book['pdf_link']}'>"f"{book['book_name']} — {book['author']}"f"</a>")
+                 text += (
+            f"📘 <a href='{book['pdf_link']}'>"
+            f"{book['book_name']} — {book['author']}"
+            f"</a>\n"
+             )
 
 
              from keyboards import books_nav_keyboard
