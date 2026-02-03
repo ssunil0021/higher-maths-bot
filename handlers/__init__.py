@@ -297,7 +297,7 @@ def register_handlers(bot):
                  else:
                     line = title
 
-                 text += f"📘 <b>{line}</b>\n{link}\n\n"
+                 text += f"📘 <a href=\"{link}\">{line}</a>\n\n"
 
              bot.send_message(call.message.chat.id, text, parse_mode='HTML')
 
