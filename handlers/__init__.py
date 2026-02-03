@@ -270,8 +270,15 @@ def register_handlers(bot):
 
 
         elif data.startswith("booksub|"):
-             subject = data.split("|")[1]
-             books = [b for b in get_books() if b.get("subject") == subject]
+             slug = data.split("|")[1]
+
+             def normalize(s):
+                 return s.lower().replace(" ", "_")
+
+             books = [
+                 b for b in get_books()
+                 if normalize(b.get("subject", "")) == slug
+             ]
 
              if not books:
                 bot.send_message(call.message.chat.id, "❌ No books found")
