@@ -19,7 +19,7 @@ import time
 import math
 from keyboards import books_pagination_keyboard
 
-SEARCH_MODE = set()
+SEARCH_BOOK_MODE = set()
 ADD_BOOK_MODE = set()
 
 BOOK_ADD_STEP = {}
@@ -185,9 +185,9 @@ def send_search_page(bot, chat_id, user_id, page, message_id=None):
 
 def register_handlers(bot):
 
-    @bot.message_handler(func=lambda msg: msg.from_user.id in SEARCH_MODE)
+    @bot.message_handler(func=lambda msg: msg.from_user.id in SEARCH_BOOK_MODE)
     def book_search_handler(msg):
-       SEARCH_MODE.discard(msg.from_user.id)
+       SEARCH_BOOK_MODE.discard(msg.from_user.id)
 
        query = msg.text.lower().strip()
        SEARCH_QUERY[msg.from_user.id] = query   # 🔥 save query
