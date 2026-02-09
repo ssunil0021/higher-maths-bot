@@ -16,11 +16,16 @@ except:
     fuzz = None
 import time
 
+import math
+from keyboards import books_pagination_keyboard
+
 SEARCH_BOOK_MODE = set()
 ADD_BOOK_MODE = set()
 
 BOOK_ADD_STEP = {}
 BOOK_WIZARD = {}
+
+PAGE_SIZE = 10
 
 
 ADMIN_IDS = 5615871641
@@ -73,6 +78,38 @@ def safe_edit(bot, call, text, kb):
     except:
         pass
 
+def send_books_page(bot, chat_id, subject, page):
+    books = [b for b in get_books() if b.get("subject") == subject]
+
+    if not books:
+        bot.send_message(chat_id, "❌ No books found")
+        return
+
+    total_pages = math.ceil(len(books) / PAGE_SIZE)
+    page = max(0, min(page, total_pages - 1))
+
+    start = page * PAGE_SIZE
+    end = start + PAGE_SIZE
+    page_books = books[start:end]
+
+    text = f"📚 <b>{subject}</b>\n"
+    text += f"<i>Page {page+1} / {total_pages}</i>\n\n"
+
+    for book in page_books:
+        title = book.get("book_name", "").strip()
+        author = book.get("author", "").strip()
+        link = book.get("pdf_link", "").strip()
+
+        label = f"{title} — {author}" if author else title
+        text += f"📘 <a href=\"{link}\">{label}</a>\n\n"
+
+    bot.send_message(
+        chat_id,
+        text,
+        parse_mode="HTML",
+        disable_web_page_preview=True,
+        reply_markup=books_pagination_keyboard(subject, page, total_pages)
+    )
 
 def register_handlers(bot):
 
@@ -271,37 +308,11 @@ def register_handlers(bot):
 
         elif data.startswith("booksub|"):
              slug = data.split("|")[1]
-             
 
-             def normalize(s):
-                 return s.lower().replace(" ", "_")
+             subject = slug.replace("_", " ").title()
 
-             books = [
-                 b for b in get_books()
-                 if normalize(b.get("subject", "")) == slug
-             ]
+             send_books_page(bot,call.message.chat.id,subject,page=0)
 
-             if not books:
-                bot.send_message(call.message.chat.id, "❌ No books found")
-                return
-
-             
-             heading = slug.replace("_", " ").title()
-             text = f"📚 <b>{heading}</b>\n\n"
-
-             for book in books[:10]:
-                 title=book.get("book_name", "").strip()
-                 author=book.get("author", "").strip()
-                 link=book.get("pdf_link", "").strip()
-
-                 if author:
-                    line = f"{title} — {author}"
-                 else:
-                    line = title
-
-                 text += f"📘 <a href=\"{link}\">{line}</a>\n\n"
-
-             bot.send_message(call.message.chat.id, text, parse_mode='HTML', disable_web_page_preview=True, reply_markup=books_nav_keyboard())
 
 
 
@@ -309,26 +320,10 @@ def register_handlers(bot):
 
 
         elif data.startswith("bookpage|"):
-            _, subject, page = data.split("|")
-            page = int(page)
-            PAGE_SIZE = 10
+             _, subject, page = data.split("|")
 
-            books = [b for b in get_books() if b.get("subject") == subject]
+             send_books_page(bot,call.message.chat.id,subject.replace("_", " ").title(),int(page))
 
-            total_pages = (len(books) + PAGE_SIZE - 1) // PAGE_SIZE
-            start = page * PAGE_SIZE
-            end = start + PAGE_SIZE
-
-            text = f"📚 <b>{subject}</b>\n\n"
-
-            for b in books[start:end]:
-                text += (
-            f"📘 <b>{b['book_name']}</b>\n"
-            f"👤 {b['author']}\n"
-            f"⬇️ <a href='{b['pdf_link']}'>Download PDF</a>\n\n")
-
-            from keyboards import books_page_keyboard
-            bot.edit_message_text(text,call.message.chat.id,call.message.message_id,reply_markup=books_page_keyboard(subject, page, total_pages))
 
 
 

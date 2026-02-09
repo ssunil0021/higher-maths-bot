@@ -139,3 +139,30 @@ def books_page_keyboard(subject, page, total_pages):
         InlineKeyboardButton("🏠 Home", callback_data="home")
     )
     return kb
+
+
+def books_pagination_keyboard(subject, page, total_pages):
+    kb = InlineKeyboardMarkup(row_width=2)
+
+    if page > 0:
+        kb.add(
+            InlineKeyboardButton(
+                "⏮ Prev",
+                callback_data=f"bookpage|{subject}|{page-1}"
+            )
+        )
+
+    if page < total_pages - 1:
+        kb.add(
+            InlineKeyboardButton(
+                "Next ⏭",
+                callback_data=f"bookpage|{subject}|{page+1}"
+            )
+        )
+
+    kb.add(
+        InlineKeyboardButton("📚 Books", callback_data="books"),
+        InlineKeyboardButton("🏠 Home", callback_data="home")
+    )
+
+    return kb
