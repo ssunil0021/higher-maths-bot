@@ -204,27 +204,27 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=["addbook"])
     def user_add_book(msg):
-        USER_BOOK_MODE[msg.from_user.id] = True
-
         bot.send_message(
         msg.chat.id,
         "📘 <b>Suggest a book</b>\n\n"
-        "Send details in this format:\n\n"
-        "<i>Book Name | Author | Subject | Keywords | PDF Link</i>\n\n"
+        "Reply using this format:\n\n"
+        "<code>/submitbook Book Name | Author | Subject | Keywords | PDF Link</code>\n\n"
         "⚠️ Book will be visible after admin approval.",
         parse_mode="HTML"
     )
 
-    @bot.message_handler(func=lambda m: USER_BOOK_MODE.get(m.from_user.id))
-    def receive_user_book(msg):
-        USER_BOOK_MODE.pop(msg.from_user.id, None)
 
-        parts = [p.strip() for p in msg.text.split("|")]
+    @bot.message_handler(commands=["submitbook"])
+    def receive_user_book(msg):
+        text = msg.text.replace("/submitbook", "", 1).strip()
+
+        parts = [p.strip() for p in text.split("|")]
         if len(parts) != 5:
            bot.send_message(
             msg.chat.id,
-            "❌ Invalid format.\nPlease send:\n"
-            "Book Name | Author | Subject | Keywords | PDF Link"
+            "❌ Invalid format.\n\n"
+            "Use:\n"
+            "/submitbook Book Name | Author | Subject | Keywords | PDF Link"
         )
            return
 
@@ -238,13 +238,16 @@ def register_handlers(bot):
         "uploaded_by": str(msg.from_user.id)
     }
 
-        requests.post(os.getenv("BOOKS_SHEET_URL"), json=book)
+        try:
+          requests.post(os.getenv("BOOKS_SHEET_URL"), json=book, timeout=10)
+          bot.send_message(
+            msg.chat.id,
+            "✅ Book submitted successfully!\n"
+            "⏳ Awaiting admin approval."
+        )
+        except:
+          bot.send_message(msg.chat.id, "❌ Failed to submit book. Try later.")
 
-        bot.send_message(
-        msg.chat.id,
-        "✅ Book submitted successfully!\n"
-        "⏳ Awaiting admin approval."
-    )
 
 
     @bot.message_handler(commands=["pendingbooks"])
