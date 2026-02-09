@@ -22,7 +22,7 @@ from keyboards import books_pagination_keyboard
 
 SEARCH_BOOK_MODE = set()
 ADD_BOOK_MODE = set()
-USER_BOOK_MODE = set()
+USER_BOOK_MODE = {}
 
 
 BOOK_ADD_STEP = {}
@@ -300,7 +300,7 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=["addbook"])
     def user_add_book(msg):
-        USER_BOOK_MODE.add(msg.from_user.id)
+        USER_BOOK_MODE[msg.from_user.id] = True
 
         bot.send_message(
         msg.chat.id,
@@ -311,13 +311,17 @@ def register_handlers(bot):
         parse_mode="HTML"
     )
 
-    @bot.message_handler(func=lambda m: m.from_user.id in USER_BOOK_MODE)
+    @bot.message_handler(func=lambda m: USER_BOOK_MODE.get(m.from_user.id))
     def receive_user_book(msg):
-        USER_BOOK_MODE.discard(msg.from_user.id)
+        USER_BOOK_MODE.pop(msg.from_user.id, None)
 
         parts = [p.strip() for p in msg.text.split("|")]
         if len(parts) != 5:
-           bot.send_message(msg.chat.id, "❌ Invalid format. Please try again.")
+           bot.send_message(
+            msg.chat.id,
+            "❌ Invalid format.\nPlease send:\n"
+            "Book Name | Author | Subject | Keywords | PDF Link"
+        )
            return
 
         book = {
@@ -326,9 +330,9 @@ def register_handlers(bot):
         "subject": parts[2],
         "keywords": parts[3],
         "pdf_link": parts[4],
-        "exam_tags": "",
         "status": "pending",
-        "uploaded_by": str(msg.from_user.id)}
+        "uploaded_by": str(msg.from_user.id)
+    }
 
         requests.post(os.getenv("BOOKS_SHEET_URL"), json=book)
 
@@ -337,6 +341,7 @@ def register_handlers(bot):
         "✅ Book submitted successfully!\n"
         "⏳ Awaiting admin approval."
     )
+
 
     @bot.message_handler(commands=["pendingbooks"])
     def pending_books(msg):
