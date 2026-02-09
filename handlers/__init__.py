@@ -78,7 +78,7 @@ def safe_edit(bot, call, text, kb):
     except:
         pass
 
-def send_books_page(bot, chat_id, subject, page):
+def send_books_page(bot, chat_id, subject, page, message_id=None):
     books = [b for b in get_books() if b.get("subject") == subject]
 
     if not books:
@@ -103,13 +103,26 @@ def send_books_page(bot, chat_id, subject, page):
         label = f"{title} — {author}" if author else title
         text += f"📘 <a href=\"{link}\">{label}</a>\n\n"
 
-    bot.send_message(
-        chat_id,
-        text,
-        parse_mode="HTML",
-        disable_web_page_preview=True,
-        reply_markup=books_pagination_keyboard(subject, page, total_pages)
-    )
+    if message_id:
+        # 🔁 EDIT SAME MESSAGE
+        bot.edit_message_text(
+            text,
+            chat_id,
+            message_id,
+            parse_mode="HTML",
+            disable_web_page_preview=True,
+            reply_markup=books_pagination_keyboard(subject, page, total_pages)
+        )
+    else:
+        # 🆕 SEND NEW MESSAGE (first time)
+        bot.send_message(
+            chat_id,
+            text,
+            parse_mode="HTML",
+            disable_web_page_preview=True,
+            reply_markup=books_pagination_keyboard(subject, page, total_pages)
+        )
+
 
 def register_handlers(bot):
 
@@ -322,7 +335,7 @@ def register_handlers(bot):
         elif data.startswith("bookpage|"):
              _, subject, page = data.split("|")
 
-             send_books_page(bot,call.message.chat.id,subject.replace("_", " ").title(),int(page))
+             send_books_page(bot,call.message.chat.id,subject.replace("_", " ").title(),int(page),message_id=call.message.message_id)
 
 
 
