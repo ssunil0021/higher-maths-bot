@@ -215,40 +215,50 @@ def register_handlers(bot):
 
 
     @bot.message_handler(commands=["submitbook"])
-    def receive_user_book(msg):
-        text = msg.text.replace("/submitbook", "", 1).strip()
-
-        parts = [p.strip() for p in text.split("|")]
-        if len(parts) != 5:
-           bot.send_message(
-            msg.chat.id,
-            "❌ Invalid format.\n\n"
-            "Use:\n"
-            "/submitbook Book Name | Author | Subject | Keywords | PDF Link"
-        )
-           return
-
-        book = {
-        "book_name": parts[0],
-        "author": parts[1],
-        "subject": parts[2],
-        "keywords": parts[3],
-        "pdf_link": parts[4],
-        "status": "pending",
-        "uploaded_by": str(msg.from_user.id)
-    }
-        
-        requests.post(os.getenv("BOOKS_SHEET_URL"),json=book,headers={"Content-Type": "application/json"},timeout=15)
-
+    def submit_book(msg):
         try:
-          requests.post(os.getenv("BOOKS_SHEET_URL"), json=book, timeout=10)
-          bot.send_message(
+           parts = msg.text.replace("/submitbook", "", 1).strip().split("|")
+
+           if len(parts) != 5:
+               bot.send_message(
+                msg.chat.id,
+                "❌ Invalid format.\n\n"
+                "Use:\n"
+                "/submitbook Book Name | Author | Subject | Keywords | PDF Link"
+            )
+               return
+
+           book = {
+            "book_name": parts[0].strip(),
+            "author": parts[1].strip(),
+            "subject": parts[2].strip(),
+            "keywords": parts[3].strip(),
+            "pdf_link": parts[4].strip(),
+            "status": "pending",
+            "uploaded_by": str(msg.from_user.id)
+        }
+
+            # ✅ EXACT LINE YOU ASKED ABOUT — YAHI ADD KARNA HAI
+           requests.post(
+            os.getenv("BOOKS_SHEET_URL"),
+            json=book,
+            headers={"Content-Type": "application/json"},
+            timeout=15
+        )
+
+           bot.send_message(
             msg.chat.id,
             "✅ Book submitted successfully!\n"
             "⏳ Awaiting admin approval."
         )
-        except:
-          bot.send_message(msg.chat.id, "❌ Failed to submit book. Try later.")
+
+        except Exception as e:
+            print("SUBMIT BOOK ERROR:", e)
+            bot.send_message(
+            msg.chat.id,
+            "❌ Failed to submit book. Try later."
+        )
+
 
 
 
