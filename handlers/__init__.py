@@ -237,6 +237,8 @@ def register_handlers(bot):
         "status": "pending",
         "uploaded_by": str(msg.from_user.id)
     }
+        
+        requests.post(os.getenv("BOOKS_SHEET_URL"),json=book,headers={"Content-Type": "application/json"},timeout=15)
 
         try:
           requests.post(os.getenv("BOOKS_SHEET_URL"), json=book, timeout=10)
