@@ -130,43 +130,46 @@ def register_handlers(bot):
     def book_search_handler(msg):
         SEARCH_BOOK_MODE.discard(msg.from_user.id)
 
-        loading = bot.send_message(msg.chat.id, "⏳ Searching books…")
-
         query = msg.text.lower().strip()
+
+        books = get_books()
         results = []
 
-        from difflib import SequenceMatcher
         def sim(a, b):
-            return SequenceMatcher(None, a, b).ratio()
+           return SequenceMatcher(None, a, b).ratio()
 
-        for book in get_books():
+        for book in books:
             text = f"{book.get('book_name','')} {book.get('author','')} {book.get('keywords','')}".lower()
-            if sim(query, text) > 0.45 or query in text:
-               results.append(book)
-
-        bot.delete_message(msg.chat.id, loading.message_id)
+            if query in text or sim(query, text) > 0.45:
+              results.append(book)
 
         if not results:
            bot.send_message(
             msg.chat.id,
-            "❌ No matching books found.\nTry different spelling.",
+            "❌ No matching books found.\nTry different keywords.",
             reply_markup=books_nav_keyboard()
         )
            return
 
-        for book in results[:5]:
-            bot.send_message(
-            msg.chat.id,
-            f"📘 <b>{book['book_name']}</b>\n"
-            f"👤 {book['author']}\n"
-            f"⬇️ <a href='{book['pdf_link']}'>Download PDF</a>"
-        )
+    # 🔥 SINGLE MESSAGE OUTPUT
+        text = f"🔍 <b>Search results for:</b> <i>{query}</i>\n\n"
+
+        for book in results:
+            title = book.get("book_name", "").strip()
+            author = book.get("author", "").strip()
+            link = book.get("pdf_link", "").strip()
+
+            label = f"{title} — {author}" if author else title
+            text += f"📘 <a href=\"{link}\">{label}</a>\n\n"
 
         bot.send_message(
         msg.chat.id,
-        "✨ <b>What next?</b>",
+        text,
+        parse_mode="HTML",
+        disable_web_page_preview=True,
         reply_markup=books_nav_keyboard()
     )
+
 
     @bot.message_handler(func=lambda m: m.from_user.id in ADD_BOOK_MODE)
     def receive_book(msg):
