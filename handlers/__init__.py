@@ -8,7 +8,7 @@ from admin_stats import get_stats
 from keyboards import csir_year_keyboard, csir_session_keyboard, books_subject_keyboard
 from books_data import get_books
 from keyboards import books_menu_keyboard
-from keyboards import books_nav_keyboard
+from keyboards import books_nav_keyboard, search_page_keyboard
 from difflib import SequenceMatcher
 try:
     from rapidfuzz import fuzz
@@ -19,7 +19,7 @@ import time
 import math
 from keyboards import books_pagination_keyboard
 
-SEARCH_BOOK_MODE = set()
+SEARCH_MODE = set()
 ADD_BOOK_MODE = set()
 
 BOOK_ADD_STEP = {}
@@ -27,6 +27,7 @@ BOOK_WIZARD = {}
 
 PAGE_SIZE = 10
 
+SEARCH_QUERY = {}
 
 ADMIN_IDS = 5615871641
 
@@ -123,52 +124,81 @@ def send_books_page(bot, chat_id, subject, page, message_id=None):
             reply_markup=books_pagination_keyboard(subject, page, total_pages)
         )
 
+def send_search_page(bot, chat_id, user_id, page, message_id=None):
+    query = SEARCH_QUERY.get(user_id)
+
+    if not query:
+        bot.send_message(chat_id, "❌ Search expired. Please search again.")
+        return
+
+    all_books = get_books()
+    results = []
+
+    def sim(a, b):
+        return SequenceMatcher(None, a, b).ratio()
+
+    for book in all_books:
+        text = f"{book.get('book_name','')} {book.get('author','')} {book.get('keywords','')}".lower()
+        if query in text or sim(query, text) > 0.45:
+            results.append(book)
+
+    if not results:
+        bot.send_message(chat_id, "❌ No matching books found.")
+        return
+
+    total_pages = math.ceil(len(results) / PAGE_SIZE)
+    page = max(0, min(page, total_pages - 1))
+
+    start = page * PAGE_SIZE
+    end = start + PAGE_SIZE
+    page_books = results[start:end]
+
+    text = f"🔍 <b>Search results for:</b> <i>{query}</i>\n"
+    text += f"<i>Page {page+1} / {total_pages}</i>\n\n"
+
+    for book in page_books:
+        title = book.get("book_name", "").strip()
+        author = book.get("author", "").strip()
+        link = book.get("pdf_link", "").strip()
+
+        label = f"{title} — {author}" if author else title
+        text += f"📘 <a href=\"{link}\">{label}</a>\n\n"
+
+    if message_id:
+        bot.edit_message_text(
+            text,
+            chat_id,
+            message_id,
+            parse_mode="HTML",
+            disable_web_page_preview=True,
+            reply_markup=search_page_keyboard(page, total_pages)
+        )
+    else:
+        bot.send_message(
+            chat_id,
+            text,
+            parse_mode="HTML",
+            disable_web_page_preview=True,
+            reply_markup=search_page_keyboard(page, total_pages)
+        )
+
 
 def register_handlers(bot):
 
-    @bot.message_handler(func=lambda msg: msg.from_user.id in SEARCH_BOOK_MODE)
+    @bot.message_handler(func=lambda msg: msg.from_user.id in SEARCH_MODE)
     def book_search_handler(msg):
-        SEARCH_BOOK_MODE.discard(msg.from_user.id)
+       SEARCH_MODE.discard(msg.from_user.id)
 
-        query = msg.text.lower().strip()
+       query = msg.text.lower().strip()
+       SEARCH_QUERY[msg.from_user.id] = query   # 🔥 save query
 
-        books = get_books()
-        results = []
-
-        def sim(a, b):
-           return SequenceMatcher(None, a, b).ratio()
-
-        for book in books:
-            text = f"{book.get('book_name','')} {book.get('author','')} {book.get('keywords','')}".lower()
-            if query in text or sim(query, text) > 0.45:
-              results.append(book)
-
-        if not results:
-           bot.send_message(
-            msg.chat.id,
-            "❌ No matching books found.\nTry different keywords.",
-            reply_markup=books_nav_keyboard()
-        )
-           return
-
-    # 🔥 SINGLE MESSAGE OUTPUT
-        text = f"🔍 <b>Search results for:</b> <i>{query}</i>\n\n"
-
-        for book in results:
-            title = book.get("book_name", "").strip()
-            author = book.get("author", "").strip()
-            link = book.get("pdf_link", "").strip()
-
-            label = f"{title} — {author}" if author else title
-            text += f"📘 <a href=\"{link}\">{label}</a>\n\n"
-
-        bot.send_message(
+       send_search_page(
+        bot,
         msg.chat.id,
-        text,
-        parse_mode="HTML",
-        disable_web_page_preview=True,
-        reply_markup=books_nav_keyboard()
+        msg.from_user.id,
+        page=0
     )
+
 
 
     @bot.message_handler(func=lambda m: m.from_user.id in ADD_BOOK_MODE)
@@ -491,6 +521,10 @@ Select a year to download:
 
              bot.send_message(call.message.chat.id, text)
 
+        elif data.startswith("searchpage|"):
+             page = int(data.split("|")[1])
+
+             send_search_page(bot,call.message.chat.id,call.from_user.id,page,message_id=call.message.message_id)
 
 
     
