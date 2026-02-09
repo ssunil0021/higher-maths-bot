@@ -1,3 +1,4 @@
+import os
 from keyboards import home_keyboard, exam_keyboard, year_keyboard
 from data import EXAMS, PDF_LINKS
 #from user_stats import add_user, total_users
@@ -21,6 +22,8 @@ from keyboards import books_pagination_keyboard
 
 SEARCH_BOOK_MODE = set()
 ADD_BOOK_MODE = set()
+USER_BOOK_MODE = set()
+
 
 BOOK_ADD_STEP = {}
 BOOK_WIZARD = {}
@@ -226,7 +229,7 @@ def register_handlers(bot):
         bot.send_message(msg.chat.id, "✅ Book added successfully") 
     
     
-    @bot.message_handler(commands=["addbook"])
+    @bot.message_handler(commands=["adminaddbook"])
     def add_book_start(msg):
         if msg.from_user.id != ADMIN_IDS:
            return
@@ -295,6 +298,95 @@ def register_handlers(bot):
         if books:
            bot.send_message(msg.chat.id, str(books[0]))
 
+    @bot.message_handler(commands=["addbook"])
+    def user_add_book(msg):
+        USER_BOOK_MODE.add(msg.from_user.id)
+
+        bot.send_message(
+        msg.chat.id,
+        "📘 <b>Suggest a book</b>\n\n"
+        "Send details in this format:\n\n"
+        "<i>Book Name | Author | Subject | Keywords | PDF Link</i>\n\n"
+        "⚠️ Book will be visible after admin approval.",
+        parse_mode="HTML"
+    )
+
+    @bot.message_handler(func=lambda m: m.from_user.id in USER_BOOK_MODE)
+    def receive_user_book(msg):
+        USER_BOOK_MODE.discard(msg.from_user.id)
+
+        parts = [p.strip() for p in msg.text.split("|")]
+        if len(parts) != 5:
+           bot.send_message(msg.chat.id, "❌ Invalid format. Please try again.")
+           return
+
+        book = {
+        "book_name": parts[0],
+        "author": parts[1],
+        "subject": parts[2],
+        "keywords": parts[3],
+        "pdf_link": parts[4],
+        "exam_tags": "",
+        "status": "pending",
+        "uploaded_by": str(msg.from_user.id)}
+
+        requests.post(os.getenv("BOOKS_SHEET_URL"), json=book)
+
+        bot.send_message(
+        msg.chat.id,
+        "✅ Book submitted successfully!\n"
+        "⏳ Awaiting admin approval."
+    )
+
+    @bot.message_handler(commands=["pendingbooks"])
+    def pending_books(msg):
+        if msg.from_user.id != ADMIN_IDS:
+           return
+
+        books = get_books(only_approved=False)
+        pending = [b for b in books if b.get("status") == "pending"]
+ 
+        if not pending:
+           bot.send_message(msg.chat.id, "✅ No pending books")
+           return
+
+        for b in pending:
+            text = (
+            f"📘 <b>{b['book_name']}</b>\n"
+            f"👤 {b['author']}\n"
+            f"📚 {b['subject']}\n"
+            f"⬇️ {b['pdf_link']}\n\n"
+            f"/approve_{b['book_id']}  |  /reject_{b['book_id']}"
+        )
+        bot.send_message(msg.chat.id, text, parse_mode="HTML")
+
+
+    @bot.message_handler(func=lambda m: m.text.startswith("/approve_"))
+    def approve_book(msg):
+       if msg.from_user.id != ADMIN_IDS:
+          return
+
+       book_id = msg.text.replace("/approve_", "")
+       requests.post(os.getenv("BOOKS_SHEET_URL"), json={
+        "book_id": book_id,
+        "status": "approved"
+    })
+
+       bot.send_message(msg.chat.id, f"✅ Book {book_id} approved")
+
+
+    @bot.message_handler(func=lambda m: m.text.startswith("/reject_"))
+    def reject_book(msg):
+        if msg.from_user.id != ADMIN_IDS:
+           return
+
+        book_id = msg.text.replace("/reject_", "")
+        requests.post(os.getenv("BOOKS_SHEET_URL"), json={
+        "book_id": book_id,
+        "status": "rejected"
+    })
+
+        bot.send_message(msg.chat.id, f"❌ Book {book_id} rejected")
 
     
 
