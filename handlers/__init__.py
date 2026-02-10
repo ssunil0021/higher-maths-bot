@@ -29,7 +29,11 @@ PAGE_SIZE = 10
 
 SEARCH_QUERY = {}
 
-ADMIN_IDS = 5615871641
+ADMIN_IDS = {
+    5615871641,      # tum     
+    6524627058       # trusted user 2
+}
+
 
 WELCOME_MSG = """📘 <b>Higher Maths PYQs</b>
 
@@ -228,7 +232,8 @@ def register_handlers(bot):
     
     @bot.message_handler(commands=["addbook"])
     def add_book_start(msg):
-        if msg.from_user.id != ADMIN_IDS:
+        if msg.from_user.id not in ADMIN_IDS:
+           bot.send_message(msg.chat.id, "⛔ You are not authorized to use this.")
            return
 
         uid = msg.from_user.id
@@ -310,7 +315,7 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=["stats"])
     def stats(msg):
-        if msg.from_user.id != ADMIN_IDS:
+        if msg.from_user.id not in ADMIN_IDS:
              return
 
         s = get_stats()
