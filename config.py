@@ -1,10 +1,6 @@
 import os
 
-ADMIN_IDS = {
-    5615871641,      # tum     
-    6524627058       # trusted user 2
-}
-
+ADMIN_IDS = 5615871641
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 if not BOT_TOKEN:
