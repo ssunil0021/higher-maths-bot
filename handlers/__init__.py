@@ -8,7 +8,7 @@ from admin_stats import get_stats
 from keyboards import csir_year_keyboard, csir_session_keyboard, books_subject_keyboard
 from books_data import get_books
 from keyboards import books_menu_keyboard
-from keyboards import books_nav_keyboard, search_page_keyboard
+from keyboards import books_nav_keyboard
 from difflib import SequenceMatcher
 try:
     from rapidfuzz import fuzz
@@ -27,13 +27,8 @@ BOOK_WIZARD = {}
 
 PAGE_SIZE = 10
 
-SEARCH_QUERY = {}
 
-ADMIN_IDS = {
-    5615871641,      # tum     
-    6524627058       # trusted user 2
-}
-
+ADMIN_IDS = 5615871641
 
 WELCOME_MSG = """📘 <b>Higher Maths PYQs</b>
 
@@ -128,82 +123,50 @@ def send_books_page(bot, chat_id, subject, page, message_id=None):
             reply_markup=books_pagination_keyboard(subject, page, total_pages)
         )
 
-def send_search_page(bot, chat_id, user_id, page, message_id=None):
-    query = SEARCH_QUERY.get(user_id)
-
-    if not query:
-        bot.send_message(chat_id, "❌ Search expired. Please search again.")
-        return
-
-    all_books = get_books()
-    results = []
-
-    def sim(a, b):
-        return SequenceMatcher(None, a, b).ratio()
-
-    for book in all_books:
-        text = f"{book.get('book_name','')} {book.get('author','')} {book.get('keywords','')}".lower()
-        if query in text or sim(query, text) > 0.45:
-            results.append(book)
-
-    if not results:
-        bot.send_message(chat_id, "❌ No matching books found.")
-        return
-
-    total_pages = math.ceil(len(results) / PAGE_SIZE)
-    page = max(0, min(page, total_pages - 1))
-
-    start = page * PAGE_SIZE
-    end = start + PAGE_SIZE
-    page_books = results[start:end]
-
-    text = f"🔍 <b>Search results for:</b> <i>{query}</i>\n"
-    text += f"<i>Page {page+1} / {total_pages}</i>\n\n"
-
-    for book in page_books:
-        title = book.get("book_name", "").strip()
-        author = book.get("author", "").strip()
-        link = book.get("pdf_link", "").strip()
-
-        label = f"{title} — {author}" if author else title
-        text += f"📘 <a href=\"{link}\">{label}</a>\n\n"
-
-    if message_id:
-        bot.edit_message_text(
-            text,
-            chat_id,
-            message_id,
-            parse_mode="HTML",
-            disable_web_page_preview=True,
-            reply_markup=search_page_keyboard(page, total_pages)
-        )
-    else:
-        bot.send_message(
-            chat_id,
-            text,
-            parse_mode="HTML",
-            disable_web_page_preview=True,
-            reply_markup=search_page_keyboard(page, total_pages)
-        )
-
 
 def register_handlers(bot):
 
     @bot.message_handler(func=lambda msg: msg.from_user.id in SEARCH_BOOK_MODE)
     def book_search_handler(msg):
-       SEARCH_BOOK_MODE.discard(msg.from_user.id)
+        SEARCH_BOOK_MODE.discard(msg.from_user.id)
 
-       query = msg.text.lower().strip()
-       SEARCH_QUERY[msg.from_user.id] = query   # 🔥 save query
+        loading = bot.send_message(msg.chat.id, "⏳ Searching books…")
 
-       send_search_page(
-        bot,
+        query = msg.text.lower().strip()
+        results = []
+
+        from difflib import SequenceMatcher
+        def sim(a, b):
+            return SequenceMatcher(None, a, b).ratio()
+
+        for book in get_books():
+            text = f"{book.get('book_name','')} {book.get('author','')} {book.get('keywords','')}".lower()
+            if sim(query, text) > 0.45 or query in text:
+               results.append(book)
+
+        bot.delete_message(msg.chat.id, loading.message_id)
+
+        if not results:
+           bot.send_message(
+            msg.chat.id,
+            "❌ No matching books found.\nTry different spelling.",
+            reply_markup=books_nav_keyboard()
+        )
+           return
+
+        for book in results[:5]:
+            bot.send_message(
+            msg.chat.id,
+            f"📘 <b>{book['book_name']}</b>\n"
+            f"👤 {book['author']}\n"
+            f"⬇️ <a href='{book['pdf_link']}'>Download PDF</a>"
+        )
+
+        bot.send_message(
         msg.chat.id,
-        msg.from_user.id,
-        page=0
+        "✨ <b>What next?</b>",
+        reply_markup=books_nav_keyboard()
     )
-
-
 
     @bot.message_handler(func=lambda m: m.from_user.id in ADD_BOOK_MODE)
     def receive_book(msg):
@@ -232,8 +195,7 @@ def register_handlers(bot):
     
     @bot.message_handler(commands=["addbook"])
     def add_book_start(msg):
-        if msg.from_user.id not in ADMIN_IDS:
-           bot.send_message(msg.chat.id, "⛔ You are not authorized to use this.")
+        if msg.from_user.id != ADMIN_IDS:
            return
 
         uid = msg.from_user.id
@@ -315,7 +277,7 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=["stats"])
     def stats(msg):
-        if msg.from_user.id not in ADMIN_IDS:
+        if msg.from_user.id != ADMIN_IDS:
              return
 
         s = get_stats()
@@ -526,10 +488,6 @@ Select a year to download:
 
              bot.send_message(call.message.chat.id, text)
 
-        elif data.startswith("searchpage|"):
-             page = int(data.split("|")[1])
-
-             send_search_page(bot,call.message.chat.id,call.from_user.id,page,message_id=call.message.message_id)
 
 
     
