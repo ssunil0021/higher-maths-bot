@@ -54,15 +54,34 @@ Coming soon:
 """
 
 
-HELP_MSG = """ℹ️ <b>How to use</b>
+HELP_MSG = """ℹ️ How to Use xMathematics
 
-1️⃣ Click PYQs  
-2️⃣ Choose exam  
-3️⃣ Select category (if shown)  
-4️⃣ Select year  
-5️⃣ Download PDFs  
+A focused workspace for serious mathematics aspirants.
 
-📌 Tip: Practice PYQs year-wise for better understanding.
+📂 PYQs
+
+• Select exam
+• Choose year
+• Download paper & answer key
+
+📘 Books & PDFs
+
+• Subject-wise references
+• Direct, clean downloads
+• Curated academic material
+
+🟢 Daily Question Practice
+
+• Today’s Problem (morning release)
+• Solution update (evening)
+• Past questions — date-wise archive
+
+🎯 Approach
+
+Consistency > Intensity
+Conceptual clarity > Random solving
+
+Prepare with structure. Think deeply. Practice deliberately.
 """
 
 
