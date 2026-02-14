@@ -166,3 +166,32 @@ def books_pagination_keyboard(subject, page, total_pages):
     )
 
     return kb
+
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+def search_page_keyboard(page, total_pages):
+    kb = InlineKeyboardMarkup(row_width=2)
+
+    buttons = []
+
+    if page > 0:
+        buttons.append(
+            InlineKeyboardButton("⬅️ Prev", callback_data=f"searchpage|{page-1}")
+        )
+
+    if page < total_pages - 1:
+        buttons.append(
+            InlineKeyboardButton("➡️ Next", callback_data=f"searchpage|{page+1}")
+        )
+
+    if buttons:
+        kb.add(*buttons)
+
+    kb.add(
+        InlineKeyboardButton("🔍 Search again", callback_data="booksearch"),
+        InlineKeyboardButton("📚 Books", callback_data="books"),
+        InlineKeyboardButton("🏠 Home", callback_data="home")
+    )
+
+    return kb
+
