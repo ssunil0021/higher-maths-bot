@@ -7,6 +7,7 @@ def home_keyboard():
     kb.add(
         InlineKeyboardButton("📂 PYQs", callback_data="pyqs"),
         InlineKeyboardButton("📚 Books & PDFs", callback_data="books"),
+        InlineKeyboardButton("📘 Question Practice", callback_data="question_practice"),
         InlineKeyboardButton("ℹ️ Help", callback_data="help")
     )
     return kb

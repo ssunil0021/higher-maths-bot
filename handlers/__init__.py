@@ -18,6 +18,9 @@ import time
 
 import math
 from keyboards import books_pagination_keyboard
+from daily_data import get_daily_questions
+import datetime
+
 
 SEARCH_BOOK_MODE = set()
 ADD_BOOK_MODE = set()
@@ -26,6 +29,7 @@ BOOK_ADD_STEP = {}
 BOOK_WIZARD = {}
 
 PAGE_SIZE = 10
+PAGE_SIZE = 5
 
 SEARCH_QUERY = {}
 
@@ -181,6 +185,43 @@ def send_search_page(bot, chat_id, user_id, page, message_id=None):
             disable_web_page_preview=True,
             reply_markup=search_page_keyboard(page, total_pages)
         )
+
+def send_past_page(bot, chat_id, page):
+    import datetime
+    questions = get_daily_questions()
+    today = datetime.date.today().strftime("%Y-%m-%d")
+
+    past = [q for q in questions if q.get("date") != today]
+    past.sort(key=lambda x: x.get("date"), reverse=True)
+
+    total_pages = (len(past) + PAGE_SIZE - 1) // PAGE_SIZE
+    start = page * PAGE_SIZE
+    end = start + PAGE_SIZE
+
+    from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+    kb = InlineKeyboardMarkup(row_width=1)
+
+    for q in past[start:end]:
+        kb.add(
+            InlineKeyboardButton(
+                f"{q['day']}, {q['date']} – {q['topic']}",
+                callback_data=f"view_question|{q['id']}"
+            )
+        )
+
+    nav = []
+    if page > 0:
+        nav.append(InlineKeyboardButton("⬅ Prev", callback_data=f"past_page|{page-1}"))
+    if page < total_pages - 1:
+        nav.append(InlineKeyboardButton("Next ➡", callback_data=f"past_page|{page+1}"))
+
+    if nav:
+        kb.row(*nav)
+
+    kb.add(InlineKeyboardButton("🏠 Home", callback_data="home"))
+
+    bot.send_message(chat_id, f"📂 <b>Past Daily Questions</b>\nPage {page+1}/{total_pages}", reply_markup=kb)
+
 
 
 def register_handlers(bot):
@@ -527,5 +568,74 @@ Select a year to download:
              send_search_page(bot,call.message.chat.id,call.from_user.id,page,message_id=call.message.message_id)
 
 
-    
+        elif data == "question_practice":
+             from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+             kb = InlineKeyboardMarkup(row_width=1)
+             kb.add(
+        InlineKeyboardButton("🟢 Today's Question", callback_data="today_question"),
+        InlineKeyboardButton("📂 Past Questions", callback_data="past_questions"),
+        InlineKeyboardButton("🏠 Home", callback_data="home"))
+             safe_edit(bot, call, "📘 <b>Question Practice</b>", kb)
+
+
+        elif data == "today_question":
+             today = datetime.date.today().strftime("%Y-%m-%d")
+             questions = get_daily_questions()
+
+             q = next((item for item in questions if item.get("date") == today), None)
+
+             if not q:
+                bot.send_message(call.message.chat.id, "❌ No question available for today.")
+                return
+
+             text = (
+        f"📘 <b>Daily Question</b>\n"
+        f"🗓 <i>{q['day']}, {q['date']}</i>\n"
+        f"📚 <b>{q['topic']}</b>\n\n"
+        f"📥 <b>Question PDF</b>\n"
+        f"🔵 <a href='{q['question_link']}'>Download Question</a>\n\n"
+    )
+
+             if q.get("solution_link"):
+                text += (
+            f"📥 <b>Solution PDF</b>\n"
+            f"🔵 <a href='{q['solution_link']}'>Download Solution</a>"
+        )
+             else:
+               text += "⏳ Solution will be available at 7:00 PM."
+
+             bot.send_message(call.message.chat.id, text, parse_mode="HTML", disable_web_page_preview=True)
+
+        elif data == "past_questions":
+             send_past_page(bot, call.message.chat.id, 0)
+
+        elif data.startswith("past_page|"):
+             page = int(data.split("|")[1])
+             send_past_page(bot, call.message.chat.id, page)
+
+        elif data.startswith("view_question|"):
+             qid = data.split("|")[1]
+             questions = get_daily_questions()
+
+             q = next((item for item in questions if item.get("id") == qid), None)
+
+             if not q:
+                bot.send_message(call.message.chat.id, "❌ Question not found.")
+                return
+
+             text = (
+        f"📘 <b>{q['day']}, {q['date']}</b>\n"
+        f"📚 <b>{q['topic']}</b>\n\n"
+        f"📥 <b>Question PDF</b>\n"
+        f"🔵 <a href='{q['question_link']}'>Download Question</a>\n\n")
+
+             if q.get("solution_link"):
+                text += (
+            f"📥 <b>Solution PDF</b>\n"
+            f"🔵 <a href='{q['solution_link']}'>Download Solution</a>")
+             else:
+                text += "⏳ Solution not available."
+
+             bot.send_message(call.message.chat.id, text, parse_mode="HTML", disable_web_page_preview=True)
+
 
