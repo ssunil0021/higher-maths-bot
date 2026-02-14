@@ -35,24 +35,22 @@ SEARCH_QUERY = {}
 
 ADMIN_IDS = 5615871641
 
-WELCOME_MSG = """📘 <b>Higher Maths PYQs</b>
+WELCOME_MSG = """📘 <b>xMathematics</b>
 
-Welcome! 👋  
-This bot helps you prepare for higher mathematics exams in one place.
+Welcome! to xMathematics – A Serious Preparation Hub
+Everything you need for competitive mathematics exams, carefully organized in one place.
 
-Available now:
-• Previous year question papers (PYQs)  
-• Answer keys (where available)  
-• Clean and fast downloads  
+CSIR-NET | GATE | NBHM | IIT JAM | ISI | CMI
+
+What you get:
+• Verified PYQs with answer keys
+• Daily question practice with detailed solutions
+• Organized book & PDF references
+• Minimal, distraction-free experience
 
 Coming soon:
-• Detailed solutions of PYQs  
-• Expert guidance for exams  
-• Best video suggestions to learn topics  
-• Book PDFs & references  
-• Short notes for revision  
-
-👇 Start by selecting your exam below
+• Video solutions for selected problems
+• Expert guidance & strategy insights
 """
 
 
