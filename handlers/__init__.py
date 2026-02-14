@@ -29,7 +29,7 @@ BOOK_ADD_STEP = {}
 BOOK_WIZARD = {}
 
 PAGE_SIZE = 10
-PAGE_SIZE = 5
+
 
 SEARCH_QUERY = {}
 
@@ -186,43 +186,81 @@ def send_search_page(bot, chat_id, user_id, page, message_id=None):
             reply_markup=search_page_keyboard(page, total_pages)
         )
 
-def send_past_page(bot, chat_id, page):
+def send_past_page(bot, chat_id, page, message_id=None):
     import datetime
+    from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+    PAGE_SIZE = 5
+
     questions = get_daily_questions()
     today = datetime.date.today().strftime("%Y-%m-%d")
 
+    # remove today
     past = [q for q in questions if q.get("date") != today]
+
+    # sort newest first
     past.sort(key=lambda x: x.get("date"), reverse=True)
 
+    if not past:
+        bot.send_message(chat_id, "❌ No past questions available.")
+        return
+
     total_pages = (len(past) + PAGE_SIZE - 1) // PAGE_SIZE
+
+    # safety
+    if page < 0:
+        page = 0
+    if page >= total_pages:
+        page = total_pages - 1
+
     start = page * PAGE_SIZE
     end = start + PAGE_SIZE
 
-    from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
     kb = InlineKeyboardMarkup(row_width=1)
 
     for q in past[start:end]:
         kb.add(
             InlineKeyboardButton(
-                f"{q['day']}, {q['date']} – {q['topic']}",
+                f"{q['day']}, {q['date']}",  # ← topic removed
                 callback_data=f"view_question|{q['id']}"
             )
         )
 
+    # pagination buttons
     nav = []
     if page > 0:
-        nav.append(InlineKeyboardButton("⬅ Prev", callback_data=f"past_page|{page-1}"))
+        nav.append(
+            InlineKeyboardButton("⬅ Prev", callback_data=f"past_page|{page-1}")
+        )
+
     if page < total_pages - 1:
-        nav.append(InlineKeyboardButton("Next ➡", callback_data=f"past_page|{page+1}"))
+        nav.append(
+            InlineKeyboardButton("Next ➡", callback_data=f"past_page|{page+1}")
+        )
 
     if nav:
         kb.row(*nav)
 
     kb.add(InlineKeyboardButton("🏠 Home", callback_data="home"))
 
-    bot.send_message(chat_id, f"📂 <b>Past Daily Questions</b>\nPage {page+1}/{total_pages}", reply_markup=kb)
+    text = f"📂 <b>Past Daily Questions</b>\n\nPage {page+1} / {total_pages}"
 
-
+    # 🔥 edit same message if message_id exists
+    if message_id:
+        bot.edit_message_text(
+            text,
+            chat_id,
+            message_id,
+            reply_markup=kb,
+            parse_mode="HTML"
+        )
+    else:
+        bot.send_message(
+            chat_id,
+            text,
+            reply_markup=kb,
+            parse_mode="HTML"
+        )
 
 def register_handlers(bot):
 
