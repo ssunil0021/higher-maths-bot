@@ -642,7 +642,7 @@ Select a year to download:
 
              questions = get_daily_questions()
              india = pytz.timezone("Asia/Kolkata")
-             today = datetime.datetime.now()
+             today = datetime.datetime.now(india)
              today_date = today.strftime("%Y-%m-%d")
              today_day = today.strftime("%A")
              current_hour = today.hour
