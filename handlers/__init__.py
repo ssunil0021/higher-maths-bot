@@ -278,6 +278,15 @@ def send_past_page(bot, chat_id, page, message_id=None):
             reply_markup=kb,
             parse_mode="HTML"
         )
+from config import CHANNEL_USERNAME
+
+def is_user_joined(bot, user_id):
+    try:
+        member = bot.get_chat_member(CHANNEL_USERNAME, user_id)
+        return member.status in ["member", "administrator", "creator"]
+    except:
+        return False
+
 
 def register_handlers(bot):
 
@@ -400,7 +409,57 @@ def register_handlers(bot):
     @bot.message_handler(commands=["start"])
     def start(msg):
         add_user(msg.from_user)
-        bot.send_message(msg.chat.id, WELCOME_MSG, reply_markup=home_keyboard())
+
+        if not is_user_joined(bot, msg.from_user.id):
+
+           from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+           kb = InlineKeyboardMarkup(row_width=1)
+
+           kb.add(
+            InlineKeyboardButton(
+                "📢 Join Channel",
+                url=f"https://t.me/{CHANNEL_USERNAME.replace('@','')}"
+            )
+            )
+
+           kb.add(
+            InlineKeyboardButton(
+                "✅ I Joined",
+                callback_data="check_join"
+            )
+            )
+
+           text = """
+🚀 <b>Welcome to xMathematics</b>
+
+Before using the bot, please join our official backup channel.
+
+📢 Why join?
+• Important updates
+• New questions & resources
+• Announcements
+• Backup access
+
+Join the channel and then click <b>I Joined</b>.
+
+Thank you 🤝
+"""
+
+           bot.send_message(
+            msg.chat.id,
+            text,
+            parse_mode="HTML",
+            reply_markup=kb
+        )
+           return
+
+          # If user already joined
+        bot.send_message(
+        msg.chat.id,
+        WELCOME_MSG,
+        reply_markup=home_keyboard()
+    )
+
 
 
 
