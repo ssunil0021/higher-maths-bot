@@ -460,6 +460,20 @@ Thank you 🤝
         reply_markup=home_keyboard()
     )
 
+    @bot.callback_query_handler(func=lambda call: call.data == "check_join")
+    def check_join(call):
+
+        if is_user_joined(bot, call.from_user.id):
+           bot.answer_callback_query(call.id, "Access granted ✅")
+           bot.delete_message(call.message.chat.id, call.message.message_id)
+
+           bot.send_message(
+            call.message.chat.id,
+            WELCOME_MSG,
+            reply_markup=home_keyboard()
+        )
+        else:
+           bot.answer_callback_query(call.id, "Please join the channel first.")
 
 
 
