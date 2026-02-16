@@ -774,27 +774,48 @@ Want to practice older problems?
 
         elif data.startswith("view_question|"):
              qid = data.split("|")[1]
-             questions = get_daily_questions()
 
-             q = next((item for item in questions if item.get("id") == qid), None)
+             questions = get_daily_questions()
+             q = next((x for x in questions if str(x.get("id")) == qid), None)
 
              if not q:
-                bot.send_message(call.message.chat.id, "❌ Question not found.")
+                bot.answer_callback_query(call.id, "Question not found.")
                 return
 
-             text = (
-        f"📘 <b>{q['day']}, {q['date']}</b>\n"
-        f"📚 <b>{q['topic']}</b>\n\n"
-        f"📥 <b>Question PDF</b>\n"
-        f"🔵 <a href='{q['question_link']}'>Download Question</a>\n\n")
+             text = f"""
+📘 <b>{q['day']}, {q['date']}</b>
+📚 <i>{q['topic']}</i>
 
-             if q.get("solution_link"):
-                text += (
-            f"📥 <b>Solution PDF</b>\n"
-            f"🔵 <a href='{q['solution_link']}'>Download Solution</a>")
-             else:
-                text += "⏳ Solution not available."
+────────────────
 
-             bot.send_message(call.message.chat.id, text, parse_mode="HTML", disable_web_page_preview=True)
+📄 <b>Question PDF</b>
+<a href="{q['question_link']}">🔵 Download Question PDF</a>
+
+🧠 <b>Solution PDF</b>
+<a href="{q['solution_link']}">🔵 Download Solution PDF</a>
+
+────────────────
+
+Keep practicing consistently.  
+Every problem strengthens your mathematical thinking.
+
+Want to explore more past questions?
+"""
+
+             from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+             kb = InlineKeyboardMarkup(row_width=1)
+
+             kb.add(InlineKeyboardButton("📂 Browse More Past Questions", callback_data="past_questions"))
+
+             kb.add(InlineKeyboardButton("🏠 Home", callback_data="home"))
+
+             bot.send_message(
+        call.message.chat.id,
+        text,
+        parse_mode="HTML",
+        disable_web_page_preview=True,
+        reply_markup=kb
+    )
+
 
 
