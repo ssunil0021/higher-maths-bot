@@ -636,10 +636,12 @@ Select a year to download:
         elif data == "today_question":
 
              import datetime
+             import pytz
+
              from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
              questions = get_daily_questions()
- 
+             india = pytz.timezone("Asia/Kolkata")
              today = datetime.datetime.now()
              today_date = today.strftime("%Y-%m-%d")
              today_day = today.strftime("%A")
