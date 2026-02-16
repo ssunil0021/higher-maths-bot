@@ -634,32 +634,134 @@ Select a year to download:
 
 
         elif data == "today_question":
-             today = datetime.date.today().strftime("%Y-%m-%d")
+
+             import datetime
+             from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+
              questions = get_daily_questions()
+ 
+             today = datetime.datetime.now()
+             today_date = today.strftime("%Y-%m-%d")
+             today_day = today.strftime("%A")
+             current_hour = today.hour
 
-             q = next((item for item in questions if item.get("date") == today), None)
+             allowed_days = ["Monday", "Wednesday", "Friday"]
 
-             if not q:
-                bot.send_message(call.message.chat.id, "❌ No question available for today.")
+              # Find today's question
+             today_q = next((q for q in questions if q.get("date") == today_date), None)
+
+                # Sort all questions newest first
+             questions_sorted = sorted(questions, key=lambda x: x.get("date"), reverse=True)
+
+             # Latest past question
+             last_q = next((q for q in questions_sorted if q.get("date") != today_date), None)
+
+
+              # ❌ CASE 1 — Not Question Day
+             if today_day not in allowed_days:
+
+                text = f"""
+📘 <b>Daily Question Practice</b>
+
+Today is <b>{today_day}</b>.
+
+🚫 <b>No new question today.</b>
+
+Daily problems are released only on:
+
+• Monday  
+• Wednesday  
+• Friday  
+
+━━━━━━━━━━━━━━━
+"""
+
+                if last_q:
+                   text += f"""
+📂 <b>Practice the Latest Available Question:</b>
+
+🗓 <b>{last_q['day']}, {last_q['date']}</b>
+📖 <b>{last_q['topic']}</b>
+
+📄 <a href="{last_q['question_link']}">Download Question PDF</a>
+🧠 <a href="{last_q['solution_link']}">Download Solution PDF</a>
+
+━━━━━━━━━━━━━━━
+"""
+
+                text += """
+Want to explore older problems?
+"""
+
+                kb = InlineKeyboardMarkup(row_width=1)
+                kb.add(InlineKeyboardButton("📂 Past Questions", callback_data="past_page|0"))
+                kb.add(InlineKeyboardButton("🏠 Home", callback_data="home"))
+
+                bot.send_message(call.message.chat.id, text,
+                         parse_mode="HTML",
+                         disable_web_page_preview=True,
+                         reply_markup=kb)
+
                 return
 
-             text = (
-        f"📘 <b>Daily Question</b>\n"
-        f"🗓 <i>{q['day']}, {q['date']}</i>\n"
-        f"📚 <b>{q['topic']}</b>\n\n"
-        f"📥 <b>Question PDF</b>\n"
-        f"🔵 <a href='{q['question_link']}'>Download Question</a>\n\n"
-    )
 
-             if q.get("solution_link"):
-                text += (
-            f"📥 <b>Solution PDF</b>\n"
-            f"🔵 <a href='{q['solution_link']}'>Download Solution</a>"
-        )
+            # ❌ CASE 2 — Question Day but no entry in sheet
+             if not today_q:
+                bot.send_message(call.message.chat.id,
+                         "❌ Question not uploaded yet.",
+                         reply_markup=None)
+                return
+
+
+              # ✅ CASE 3 — Question Day (Before 7 PM)
+             if current_hour < 19:
+
+                text = f"""
+📘 <b>Today's Question</b>
+
+🗓 <b>{today_day}, {today_date}</b>
+📖 <b>{today_q['topic']}</b>
+
+📄 <a href="{today_q['question_link']}">Download Question PDF</a>
+
+━━━━━━━━━━━━━━━
+
+🕖 <b>Solution will be available at 7:00 PM.</b>
+
+Stay consistent. Come back in the evening for the full explanation.
+
+━━━━━━━━━━━━━━━
+
+Missed previous questions?
+"""
+
+       # ✅ CASE 4 — After 7 PM
              else:
-               text += "⏳ Solution will be available at 7:00 PM."
 
-             bot.send_message(call.message.chat.id, text, parse_mode="HTML", disable_web_page_preview=True)
+               text = f"""
+📘 <b>Today's Question</b>
+
+🗓 <b>{today_day}, {today_date}</b>
+📖 <b>{today_q['topic']}</b>
+
+📄 <a href="{today_q['question_link']}">Download Question PDF</a>
+🧠 <a href="{today_q['solution_link']}">Download Solution PDF</a>
+
+━━━━━━━━━━━━━━━
+
+Want to practice older problems?
+"""
+
+             kb = InlineKeyboardMarkup(row_width=1)
+             kb.add(InlineKeyboardButton("📂 Past Questions", callback_data="past_page|0"))
+             kb.add(InlineKeyboardButton("🏠 Home", callback_data="home"))
+
+             bot.send_message(call.message.chat.id,
+                     text,
+                     parse_mode="HTML",
+                     disable_web_page_preview=True,
+                     reply_markup=kb)
+
 
         elif data == "past_questions":
              send_past_page(bot, call.message.chat.id, 0)
