@@ -260,7 +260,8 @@ def send_past_page(bot, chat_id, page, message_id=None):
 
     kb.add(InlineKeyboardButton("🏠 Home", callback_data="home"))
 
-    text = f"📂 <b>Past Daily Questions</b>\n\nPage {page+1} / {total_pages}"
+    text = f"""📂 <b>Past Questions</b>
+You can access all past questions and solutions anytime.\n\nPage {page+1} / {total_pages}"""
 
     # 🔥 edit same message if message_id exists
     if message_id:
