@@ -703,41 +703,25 @@ Select a year to download:
         InlineKeyboardButton("🟢 Today's Question", callback_data="today_question"),
         InlineKeyboardButton("📂 Past Questions", callback_data="past_questions"),
         InlineKeyboardButton("🏠 Home", callback_data="home"))
-             safe_edit(bot, call, """📘 <b>📘 Welcome to Daily Question Practice Session</b>
-                       Preparing for competitive mathematics exams like
-CSIR-NET, GATE, NBHM, TIFR, IIT JAM, ISI, CMI?
+             safe_edit(bot, call, """<b>📘 Welcome to Daily Question Practice Session</b>
+Preparing for CSIR-NET, GATE, NBHM, TIFR, IIT JAM and similar exams?
 
-You can strengthen your preparation here through consistent daily problem practice based on standard textbooks and previous year patterns.
-
-━━━━━━━━━━━━━━━━━━
-
-🗓 How It Works
-
-• Every Monday, Wednesday & Friday at 7:00 AM,
-a carefully selected high-quality question is posted.
-
-• The problem is aligned with the level and style of
-CSIR-NET, GATE, NBHM and similar examinations.
-
-• The solution is released the next morning at 7:00 AM,
-allowing you time to attempt the problem seriously.
+Strengthen your preparation through structured daily problem practice based on standard books and real exam patterns.
 
 ━━━━━━━━━━━━━━━━━━
 
-📂 Missed Earlier Questions?
-
-If you have joined recently, you can access
-all previous daily questions along with their solutions.
-
-Practice consistently. Review deeply. Improve steadily.
+🗓 Schedule
+• Question released every Monday, Wednesday & Friday at 7:00 AM
+• Solution available the next morning at 7:00 AM
 
 ━━━━━━━━━━━━━━━━━━
+
+📂 Recently joined?
+You can access all past questions and solutions anytime.
 
 🎥 Video solutions and guided explanations will be added soon.
-Stay connected and continue refining your preparation.
 
-Mathematics rewards discipline.
-Let each problem sharpen your thinking.""", kb)
+Practice consistently. Think deeply. Improve steadily.""", kb)
 
 
         elif data == "today_question":
