@@ -663,7 +663,7 @@ Select a year to download:
                  text += f"📝 <b>Answer Key</b>\n⬇️ <a href='{data_year['answer']}'>Download</a>"
              else:
                  text += "📝 <b>Answer Key</b>\n❌ Not available"
-             text += """\n\n📌 More resources will be added soon.Update will be posted here:https://t.me/HigherMathematicsBot1
+             text += """\n\n📌 More resources will be added soon.Update will be posted here:https://t.me/xMathematics01
              
              Stay connected!"""
 
