@@ -822,7 +822,7 @@ Want to explore older problems?
 
 🕖 <b>Solution available the next morning at 7:00 AM.</b>
 
-Stay consistent. Come back in the evening for the full explanation.
+Stay consistent. Come back in the morning for the full explanation.
 
 ━━━━━━━━━━━━━━━
 
