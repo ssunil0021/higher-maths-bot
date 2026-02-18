@@ -820,7 +820,7 @@ Want to explore older problems?
 
 ━━━━━━━━━━━━━━━
 
-🕖 <b>Solution will be available at 7:00 PM.</b>
+🕖 <b>Solution available the next morning at 7:00 AM.</b>
 
 Stay consistent. Come back in the evening for the full explanation.
 
