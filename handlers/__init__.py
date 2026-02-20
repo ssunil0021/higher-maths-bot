@@ -126,7 +126,7 @@ def send_books_page(bot, chat_id, subject, page, message_id=None):
         author = book.get("author", "").strip()
         link = book.get("pdf_link", "").strip()
 
-        label = f"{title} — {author}" if author else title
+        label = f"{title} by {author}" if author else title
         text += f"📘 <a href=\"{link}\">{label}</a>\n\n"
 
     if message_id:
