@@ -35,7 +35,8 @@ SEARCH_QUERY = {}
 
 ADMIN_IDS = {
     5615871641,      # tum
-    6524627058      # trusted user 2
+    6524627058,
+    1437843514      # trusted user 2
 }
 
 WELCOME_MSG = """📘 <b>xMathematics</b>
