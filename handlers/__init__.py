@@ -90,7 +90,11 @@ Prepare with structure. Think deeply. Practice deliberately.
 
 
 
-
+def mark_active(user):
+    try:
+        add_user(user)
+    except:
+        pass
 
 
 def safe_edit(bot, call, text, kb):
@@ -297,8 +301,9 @@ def register_handlers(bot):
 
     @bot.message_handler(func=lambda msg: msg.from_user.id in SEARCH_BOOK_MODE)
     def book_search_handler(msg):
+       mark_active(msg.from_user)
        SEARCH_BOOK_MODE.discard(msg.from_user.id)
-
+    
        query = msg.text.lower().strip()
        SEARCH_QUERY[msg.from_user.id] = query   # 🔥 save query
 
@@ -313,6 +318,7 @@ def register_handlers(bot):
 
     @bot.message_handler(func=lambda m: m.from_user.id in ADD_BOOK_MODE)
     def receive_book(msg):
+        mark_active(msg.from_user)
         ADD_BOOK_MODE.discard(msg.from_user.id)
 
         parts = msg.text.split("|")
@@ -414,6 +420,7 @@ def register_handlers(bot):
 
     @bot.message_handler(commands=["start"])
     def start(msg):
+        
         add_user(msg.from_user)
 
         if not is_user_joined(bot, msg.from_user.id):
@@ -504,11 +511,13 @@ Thank you 🤝
 
     @bot.message_handler(commands=["help"])
     def help_cmd(msg):
+        mark_active(msg.from_user)
         bot.send_message(msg.chat.id, HELP_MSG, reply_markup=home_keyboard())
 
     @bot.callback_query_handler(func=lambda c: True)
     def callback_router(call):
         bot.answer_callback_query(call.id)
+        mark_active(call.from_user)
         data = call.data
 
         if data == "home":
